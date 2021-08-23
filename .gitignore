@@ -1,10 +1,9 @@
-#*.js
 !jest.config.js
 *.d.ts
-*.js
 node_modules
 content
 output
+*.js
 !/lambda/*
 !*.config.js
 

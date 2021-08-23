@@ -1,7 +1,10 @@
 *.ts
 !*.d.ts
+node_modules
+content
+output
+
 
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-content

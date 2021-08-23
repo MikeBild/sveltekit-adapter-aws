@@ -19,7 +19,7 @@ const rmRecursive = (p: string) => {
 
 export default {
   name: "adapter-aws",
-  async adapt({ utils, config }: any): Promise<void> {
+  async adapt({ utils }: any): Promise<void> {
     const contentPath = path.join(__dirname, "output");
     rmRecursive(contentPath);
     const serverPath = path.join(contentPath, "server");
@@ -43,7 +43,7 @@ export default {
         "deploy",
         "--app",
         "bin/adapter.js",
-        "AdapterStack",
+        "*-SvelteKitAdapterStack",
         "--require-approval",
         "never",
       ],
@@ -53,6 +53,7 @@ export default {
           {
             SERVER_PATH: path.join(contentPath, "server-bundle"),
             STATIC_PATH: path.join(contentPath, "static"),
+            NAMESPACE: process.env.NAMESPACE || "Default",
           },
           process.env
         ),

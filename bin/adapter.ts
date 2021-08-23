@@ -3,7 +3,7 @@ import * as cdk from "@aws-cdk/core";
 import { AdapterStack } from "../lib/adapter-stack";
 
 const app = new cdk.App();
-new AdapterStack(app, "AdapterStack", {
+new AdapterStack(app, `${process.env.NAMESPACE}-SvelteKitAdapterStack`, {
   env: {
     account: process.env.ACCOUNT,
     region: process.env.REGION,
