@@ -1,0 +1,36 @@
+{
+  "name": "@mikebild/sveltekit-adapter-aws",
+  "version": "1.0.0",
+  "bin": {
+    "adapter": "bin/adapter.js"
+  },
+  "main": "./adapter.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "1.119.0",
+    "@types/jest": "27.0.1",
+    "@types/node": "16.7.1",
+    "aws-cdk": "1.119.0",
+    "jest": "27.0.6",
+    "esbuild": "0.12.22",
+    "ts-jest": "27.0.5",
+    "ts-node": "10.2.1",
+    "typescript": "4.3.5"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigatewayv2": "1.119.0",
+    "@aws-cdk/aws-apigatewayv2-integrations": "1.119.0",
+    "@aws-cdk/aws-cloudfront": "1.119.0",
+    "@aws-cdk/aws-lambda": "1.119.0",
+    "@aws-cdk/aws-s3": "1.119.0",
+    "@aws-cdk/aws-s3-deployment": "1.119.0",
+    "@aws-cdk/core": "1.119.0",
+    "@sveltejs/kit": "next",
+    "svelte": "3.42.2"
+  }
+}
