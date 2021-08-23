@@ -1,5 +1,5 @@
 {
-  "name": "@mikebild/sveltekit-adapter-aws",
+  "name": "sveltekit-adapter-aws",
   "version": "1.0.0",
   "bin": {
     "adapter": "bin/adapter.js"
