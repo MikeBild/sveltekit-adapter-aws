@@ -35,12 +35,12 @@ export async function handler(event) {
   };
 }
 
-function splitHeaders(headers) {
+function splitHeaders(inputHeaders) {
   const headers = {};
   const multiValueHeaders = {};
 
-  for (const key in headers) {
-    const value = headers[key];
+  for (const key in inputHeaders) {
+    const value = inputHeaders[key];
     const target = Array.isArray(value) ? multiValueHeaders : headers;
     target[key] = value;
   }

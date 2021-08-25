@@ -36,6 +36,16 @@ export default {
       inject: [path.join(__dirname, "./lambda/shims.js")],
     });
 
+    if (
+      !(
+        process.env.AWS_ACCESS_KEY_ID &&
+        process.env.AWS_SECRET_ACCESS_KEY &&
+        process.env.AWS_DEFAULT_REGION
+      )
+    ) {
+      return;
+    }
+
     const cdkProc = spawnSync(
       "npx",
       [
