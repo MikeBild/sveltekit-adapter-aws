@@ -1,6 +1,6 @@
 {
   "name": "sveltekit-adapter-aws",
-  "version": "1.0.3",
+  "version": "1.0.8",
   "bin": {
     "adapter": "bin/adapter.js"
   },

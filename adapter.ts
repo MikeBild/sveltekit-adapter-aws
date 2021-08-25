@@ -22,15 +22,16 @@ export default {
   async adapt({ utils }: any): Promise<void> {
     const contentPath = path.join(__dirname, "output");
     rmRecursive(contentPath);
+    const outputPath = path.join(process.cwd(), ".svelte-kit/", "output");
     const serverPath = path.join(contentPath, "server");
-    const staticPath = path.join(contentPath, "static");
+    const staticPath = path.join(outputPath, "static");
     utils.copy_server_files(serverPath);
     utils.copy_client_files(staticPath);
     utils.copy_static_files(staticPath);
 
     await build({
       entryPoints: [path.join(__dirname, "lambda", "index.js")],
-      outdir: path.join(contentPath, "server-bundle"),
+      outdir: path.join(outputPath, "server-bundle"),
       bundle: true,
       platform: "node",
       inject: [path.join(__dirname, "./lambda/shims.js")],
@@ -61,8 +62,8 @@ export default {
         cwd: __dirname,
         env: Object.assign(
           {
-            SERVER_PATH: path.join(contentPath, "server-bundle"),
-            STATIC_PATH: path.join(contentPath, "static"),
+            SERVER_PATH: path.join(outputPath, "server-bundle"),
+            STATIC_PATH: path.join(outputPath, "static"),
             NAMESPACE: process.env.NAMESPACE || "Default",
           },
           process.env
