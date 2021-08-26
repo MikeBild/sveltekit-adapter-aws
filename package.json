@@ -1,6 +1,6 @@
 {
   "name": "sveltekit-adapter-aws",
-  "version": "1.0.8",
+  "version": "1.0.22",
   "bin": {
     "adapter": "bin/adapter.js"
   },
@@ -9,9 +9,11 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "format": "prettier --write ."
   },
   "devDependencies": {
+    "prettier": "2.3.2",
     "@aws-cdk/assert": "^1.119.0",
     "@types/jest": "27.0.1",
     "@types/node": "16.7.1",
@@ -31,6 +33,7 @@
     "@aws-cdk/aws-s3-deployment": "^1.119.0",
     "@aws-cdk/core": "^1.119.0",
     "@sveltejs/kit": "next",
-    "svelte": "3.42.2"
+    "svelte": "3.42.2",
+    "url": "0.11.0"
   }
 }

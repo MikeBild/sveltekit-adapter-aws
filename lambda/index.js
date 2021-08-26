@@ -1,16 +1,23 @@
-import { init, render } from "../output/server/app.js";
+import { URLSearchParams } from 'url';
+import { init, render } from '../output/server/app.js';
 
 init();
 
 export async function handler(event) {
-  const { path, httpMethod, headers, rawQuery, body, isBase64Encoded } = event;
+  const { path, httpMethod, headers, body, multiValueQueryStringParameters, isBase64Encoded } = event;
 
-  const query = new URLSearchParams(rawQuery);
+  const query = new URLSearchParams();
+  if (multiValueQueryStringParameters) {
+    Object.keys(multiValueQueryStringParameters).forEach((k) => {
+      const vs = multiValueQueryStringParameters[k];
+      vs.forEach((v) => {
+        query.append(k, v);
+      });
+    });
+  }
 
-  const encoding = isBase64Encoded
-    ? "base64"
-    : headers["content-encoding"] || "utf-8";
-  const rawBody = typeof body === "string" ? Buffer.from(body, encoding) : body;
+  const encoding = isBase64Encoded ? 'base64' : headers['content-encoding'] || 'utf-8';
+  const rawBody = typeof body === 'string' ? Buffer.from(body, encoding) : body;
 
   const rendered = await render({
     method: httpMethod,
@@ -21,32 +28,26 @@ export async function handler(event) {
   });
 
   if (rendered) {
-    return {
+    const resp = {
+      headers: {},
+      multiValueHeaders: {},
       isBase64Encoded: false,
       statusCode: rendered.status,
-      ...splitHeaders(rendered.headers),
       body: rendered.body,
     };
+    Object.keys(rendered.headers).forEach((k) => {
+      const v = rendered.headers[k];
+      if (v instanceof Array) {
+        resp.multiValueHeaders[k] = v;
+      } else {
+        resp.headers[k] = v;
+      }
+    });
+    return resp;
   }
 
   return {
     statusCode: 404,
-    body: "Not found",
-  };
-}
-
-function splitHeaders(inputHeaders) {
-  const headers = {};
-  const multiValueHeaders = {};
-
-  for (const key in inputHeaders) {
-    const value = inputHeaders[key];
-    const target = Array.isArray(value) ? multiValueHeaders : headers;
-    target[key] = value;
-  }
-
-  return {
-    headers,
-    multiValueHeaders,
+    body: 'Not found.',
   };
 }
