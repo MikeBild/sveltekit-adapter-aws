@@ -1,96 +1,136 @@
-import { readdirSync, statSync } from 'fs';
-import { join } from 'path';
-import { StackProps, Construct, Stack, Fn } from '@aws-cdk/core';
+import { StackProps, Construct, Stack, Fn, RemovalPolicy, Duration } from '@aws-cdk/core';
 import { Function, AssetCode, Runtime } from '@aws-cdk/aws-lambda';
 import { HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
-import { LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { OriginAccessIdentity, CloudFrontWebDistribution, OriginProtocolPolicy, PriceClass, CloudFrontAllowedMethods, Behavior } from '@aws-cdk/aws-cloudfront';
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
+import {
+  CloudFrontWebDistribution,
+  OriginProtocolPolicy,
+  PriceClass,
+  CloudFrontAllowedMethods,
+  LambdaEdgeEventType,
+  SSLMethod,
+} from '@aws-cdk/aws-cloudfront';
+import { EdgeFunction } from '@aws-cdk/aws-cloudfront/lib/experimental';
+import { DnsValidatedCertificate } from '@aws-cdk/aws-certificatemanager';
+import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
+import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
 
-interface AdapterProps extends StackProps {
-  serverPath: string;
-  staticPath: string;
+export interface AWSAdapterStackProps extends StackProps {
+  FQDN: string;
+  account?: string;
+  region?: string;
 }
 
-export class AdapterStack extends Stack {
-  constructor(scope: Construct, id: string, props: AdapterProps) {
+export class AWSAdapterStack extends Stack {
+  distribution: CloudFrontWebDistribution;
+  bucket: Bucket;
+  serverHandler: Function;
+  constructor(scope: Construct, id: string, props: AWSAdapterStackProps) {
     super(scope, id, props);
 
-    const { serverPath, staticPath } = props;
+    const serverPath = process.env.SERVER_PATH;
+    const staticPath = process.env.STATIC_PATH;
+    const prerenderedPath = process.env.PRERENDERED_PATH;
+    const edgePath = process.env.EDGE_PATH;
+    const [_, zoneName, TLD] = props.FQDN.split('.');
+    const domainName = `${zoneName}.${TLD}`;
 
-    const handler = new Function(this, 'LambdaFunctionHandler', {
-      code: new AssetCode(serverPath),
+    this.serverHandler = new Function(this, 'LambdaServerFunctionHandler', {
+      code: new AssetCode(serverPath!),
       handler: 'index.handler',
       runtime: Runtime.NODEJS_14_X,
       memorySize: 256,
+      timeout: Duration.minutes(15),
     });
 
     const api = new HttpApi(this, 'API');
     api.addRoutes({
       path: '/{proxy+}',
       methods: [HttpMethod.ANY],
-      integration: new LambdaProxyIntegration({
-        handler,
+      integration: new HttpLambdaIntegration('LambdaServerIntegration', this.serverHandler, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_1_0,
       }),
     });
 
-    const staticBucket = new Bucket(this, 'StaticContentBucket');
-    const staticDeployment = new BucketDeployment(this, 'StaticContentDeployment', {
-      destinationBucket: staticBucket,
-      sources: [Source.asset(staticPath)],
-      retainOnDelete: false,
-      prune: true,
+    this.bucket = new Bucket(this, 'StaticContentBucket', {
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      publicReadAccess: true,
     });
 
-    const staticID = new OriginAccessIdentity(this, 'OriginAccessIdentity');
-    staticBucket.grantRead(staticID);
+    const routerLambdaHandler = new EdgeFunction(this, 'RouterEdgeFunctionHandler', {
+      code: new AssetCode(edgePath!),
+      handler: 'index.handler',
+      runtime: Runtime.NODEJS_14_X,
+      memorySize: 128,
+      timeout: Duration.seconds(1),
+    });
 
-    const distro = new CloudFrontWebDistribution(this, 'CloudFrontWebDistribution', {
+    const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
+      domainName,
+    });
+
+    const certificate = new DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
+      domainName: props.FQDN,
+      hostedZone,
+    });
+
+    this.distribution = new CloudFrontWebDistribution(this, 'CloudFrontWebDistribution', {
       priceClass: PriceClass.PRICE_CLASS_100,
-      defaultRootObject: '',
+      enabled: true,
+      viewerCertificate: {
+        aliases: [props.FQDN],
+        props: {
+          acmCertificateArn: certificate.certificateArn,
+          sslSupportMethod: SSLMethod.SNI,
+        },
+      },
       originConfigs: [
         {
           customOriginSource: {
             domainName: Fn.select(1, Fn.split('://', api.apiEndpoint)),
+            originHeaders: { 's3-host': this.bucket.bucketDomainName },
             originProtocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
           },
           behaviors: [
             {
+              isDefaultBehavior: true,
+              compress: true,
               allowedMethods: CloudFrontAllowedMethods.ALL,
               forwardedValues: {
-                queryString: false,
+                queryString: true,
                 cookies: {
-                  forward: 'whitelist',
-                  whitelistedNames: ['sid', 'sid.sig'],
+                  forward: 'all',
                 },
               },
-              isDefaultBehavior: true,
+              lambdaFunctionAssociations: [
+                {
+                  eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
+                  lambdaFunction: routerLambdaHandler,
+                  includeBody: true,
+                },
+              ],
             },
           ],
         },
-        {
-          s3OriginSource: {
-            s3BucketSource: staticBucket,
-            originAccessIdentity: staticID,
-          },
-          behaviors: mkStaticRoutes(props.staticPath),
-        },
       ],
     });
-  }
-}
 
-function mkStaticRoutes(staticPath: string): Behavior[] {
-  return readdirSync(staticPath).map((f) => {
-    const fullPath = join(staticPath, f);
-    const stat = statSync(fullPath);
-    if (stat.isDirectory()) {
-      return {
-        pathPattern: `/${f}/*`,
-      };
-    }
-    return { pathPattern: `/${f}` };
-  });
+    new ARecord(this, 'ARecord', {
+      recordName: props.FQDN,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
+      zone: hostedZone,
+    });
+
+    new BucketDeployment(this, 'StaticContentDeployment', {
+      destinationBucket: this.bucket,
+      sources: [Source.asset(staticPath!), Source.asset(prerenderedPath!)],
+      retainOnDelete: false,
+      prune: true,
+      distribution: this.distribution,
+      distributionPaths: ['/*'],
+    });
+  }
 }

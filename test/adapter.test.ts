@@ -1,15 +1,14 @@
 import { expect as expectCDK, matchTemplate, MatchStyle } from '@aws-cdk/assert';
-import * as cdk from '@aws-cdk/core';
-import * as Adapter from '../lib/adapter-stack';
+import { App } from '@aws-cdk/core';
+import { AWSAdapterStack } from '../lib/adapter-stack';
 
 test('Empty Stack', () => {
-  const app = new cdk.App();
-  // WHEN
-  const stack = new Adapter.AdapterStack(app, 'MyTestStack', {
-    staticPath: '',
-    serverPath: '',
+  const app = new App();
+
+  const stack = new AWSAdapterStack(app, 'MyTestStack', {
+    FQDN: '',
   });
-  // THEN
+
   expectCDK(stack).to(
     matchTemplate(
       {

@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    "target": "es5",
     "module": "commonjs",
-    "lib": ["es2018"],
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,
@@ -17,6 +16,9 @@
     "inlineSources": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": false,
     "typeRoots": ["./node_modules/@types"]
   },
   "exclude": ["cdk.out"]

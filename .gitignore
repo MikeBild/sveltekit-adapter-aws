@@ -11,3 +11,5 @@ output
 .cdk.staging
 cdk.out
 
+# OSX
+.DS_Store
