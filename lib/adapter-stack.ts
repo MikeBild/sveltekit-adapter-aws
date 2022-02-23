@@ -4,7 +4,14 @@ import { HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatew
 import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { CloudFrontWebDistribution, OriginProtocolPolicy, PriceClass, CloudFrontAllowedMethods, LambdaEdgeEventType, SSLMethod } from '@aws-cdk/aws-cloudfront';
+import {
+  CloudFrontWebDistribution,
+  OriginProtocolPolicy,
+  PriceClass,
+  CloudFrontAllowedMethods,
+  LambdaEdgeEventType,
+  SSLMethod,
+} from '@aws-cdk/aws-cloudfront';
 import { EdgeFunction } from '@aws-cdk/aws-cloudfront/lib/experimental';
 import { DnsValidatedCertificate } from '@aws-cdk/aws-certificatemanager';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';

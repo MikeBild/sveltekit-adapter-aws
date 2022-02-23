@@ -15,16 +15,18 @@ export interface AWSAdapterProps {
   FQDN?: string; // Full qualified domain name of CloudFront deployment (e.g. demo.example.com)
 }
 ```
+
 ## Examples
 
 ### SvelteKit app only example
 
 **svelte.config.js**
+
 ```javascript
 import preprocess from 'svelte-preprocess';
 import { adapter } from 'sveltekit-adapter-aws';
 
-export default {  
+export default {
   preprocess: preprocess()
   kit: {
     adapter: adapter({
@@ -39,22 +41,24 @@ export default {
 ### Custom AWS-CDK app example
 
 **svelte.config.js**
+
 ```javascript
 import preprocess from 'svelte-preprocess';
 import { adapter } from 'sveltekit-adapter-aws';
 
-export default {  
+export default {
   preprocess: preprocess()
   kit: {
     adapter: adapter({
       autoDeploy: true,
-      cdkProjectPath: `${process.cwd()}/deploy.js`,      
+      cdkProjectPath: `${process.cwd()}/deploy.js`,
     })
   },
 };
 ```
 
 **deploy.js**
+
 ```javascript
 #!/usr/bin/env node
 
