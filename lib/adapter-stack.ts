@@ -4,14 +4,7 @@ import { HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatew
 import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import {
-  CloudFrontWebDistribution,
-  OriginProtocolPolicy,
-  PriceClass,
-  CloudFrontAllowedMethods,
-  LambdaEdgeEventType,
-  SSLMethod,
-} from '@aws-cdk/aws-cloudfront';
+import { CloudFrontWebDistribution, OriginProtocolPolicy, PriceClass, CloudFrontAllowedMethods, LambdaEdgeEventType, SSLMethod } from '@aws-cdk/aws-cloudfront';
 import { EdgeFunction } from '@aws-cdk/aws-cloudfront/lib/experimental';
 import { DnsValidatedCertificate } from '@aws-cdk/aws-certificatemanager';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
@@ -27,6 +20,9 @@ export class AWSAdapterStack extends Stack {
   distribution: CloudFrontWebDistribution;
   bucket: Bucket;
   serverHandler: Function;
+  httpApi: HttpApi;
+  hostedZone: HostedZone;
+  certificate: DnsValidatedCertificate;
   constructor(scope: Construct, id: string, props: AWSAdapterStackProps) {
     super(scope, id, props);
 
@@ -45,8 +41,8 @@ export class AWSAdapterStack extends Stack {
       timeout: Duration.minutes(15),
     });
 
-    const api = new HttpApi(this, 'API');
-    api.addRoutes({
+    this.httpApi = new HttpApi(this, 'API');
+    this.httpApi.addRoutes({
       path: '/{proxy+}',
       methods: [HttpMethod.ANY],
       integration: new HttpLambdaIntegration('LambdaServerIntegration', this.serverHandler, {
@@ -68,13 +64,13 @@ export class AWSAdapterStack extends Stack {
       timeout: Duration.seconds(1),
     });
 
-    const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
+    this.hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
       domainName,
-    });
+    }) as HostedZone;
 
-    const certificate = new DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
+    this.certificate = new DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
       domainName: props.FQDN,
-      hostedZone,
+      hostedZone: this.hostedZone,
     });
 
     this.distribution = new CloudFrontWebDistribution(this, 'CloudFrontWebDistribution', {
@@ -83,14 +79,14 @@ export class AWSAdapterStack extends Stack {
       viewerCertificate: {
         aliases: [props.FQDN],
         props: {
-          acmCertificateArn: certificate.certificateArn,
+          acmCertificateArn: this.certificate.certificateArn,
           sslSupportMethod: SSLMethod.SNI,
         },
       },
       originConfigs: [
         {
           customOriginSource: {
-            domainName: Fn.select(1, Fn.split('://', api.apiEndpoint)),
+            domainName: Fn.select(1, Fn.split('://', this.httpApi.apiEndpoint)),
             originHeaders: { 's3-host': this.bucket.bucketDomainName },
             originProtocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
           },
@@ -121,7 +117,7 @@ export class AWSAdapterStack extends Stack {
     new ARecord(this, 'ARecord', {
       recordName: props.FQDN,
       target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
-      zone: hostedZone,
+      zone: this.hostedZone,
     });
 
     new BucketDeployment(this, 'StaticContentDeployment', {
