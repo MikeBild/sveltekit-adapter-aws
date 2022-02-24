@@ -18,6 +18,7 @@ export interface AWSAdapterProps {
   cdkProjectPath?: string;
   stackName?: string;
   FQDN?: string;
+  env?: { [key: string]: string };
 }
 
 export function adapter({
@@ -26,11 +27,11 @@ export function adapter({
   cdkProjectPath = `${__dirname}/deploy/index.js`,
   stackName = '*',
   FQDN,
+  env = {},
 }: AWSAdapterProps) {
   /** @type {import('@sveltejs/kit').Adapter} */
   return {
     name: 'adapter-awscdk',
-
     async adapt(builder: any) {
       emptyDirSync(artifactPath);
 
@@ -40,8 +41,8 @@ export function adapter({
       }
 
       const prerendered_directory = join(artifactPath, 'prerendered');
-      if (!existsSync(static_directory)) {
-        mkdirSync(static_directory, { recursive: true });
+      if (!existsSync(prerendered_directory)) {
+        mkdirSync(prerendered_directory, { recursive: true });
       }
 
       const server_directory = join(artifactPath, 'server');
@@ -95,7 +96,7 @@ export function adapter({
       builder.log.minor('Cleanup project.');
       unlinkSync(`${server_directory}/_index.js`);
       unlinkSync(`${edge_directory}/_index.js`);
-      unlinkSync(`${artifactPath}/app.js`);
+      unlinkSync(`${artifactPath}/index.js`);
 
       builder.log.minor('Deploy using AWS-CDK.');
       autoDeploy &&
@@ -111,7 +112,8 @@ export function adapter({
               STACKNAME: stackName,
               FQDN,
             },
-            process.env
+            process.env,
+            env
           ),
         });
 

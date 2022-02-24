@@ -83,6 +83,7 @@ export class AWSAdapterStack extends Stack {
     this.distribution = new CloudFrontWebDistribution(this, 'CloudFrontWebDistribution', {
       priceClass: PriceClass.PRICE_CLASS_100,
       enabled: true,
+      defaultRootObject: '',
       viewerCertificate: {
         aliases: [props.FQDN],
         props: {

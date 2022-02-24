@@ -33,6 +33,7 @@ export default {
       autoDeploy: true,
       FQDN: 'demo.example.com',
       stackName: 'Demo-Example',
+      env: {}
     })
   },
 };
@@ -52,6 +53,7 @@ export default {
     adapter: adapter({
       autoDeploy: true,
       cdkProjectPath: `${process.cwd()}/deploy.js`,
+      env: {}
     })
   },
 };

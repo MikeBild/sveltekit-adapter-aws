@@ -1,15 +1,15 @@
 import './shims.js';
-import { App } from '../app.js';
+import { Server } from '../index.js';
 import { manifest } from '../manifest.js';
 
 export async function handler(event) {
-  const app = new App(manifest);
+  const server = new Server(manifest);
   const { path, headers, multiValueQueryStringParameters, body, httpMethod, requestContext, isBase64Encoded } = event;
   const encoding = isBase64Encoded ? 'base64' : headers['content-encoding'] || 'utf-8';
   const rawBody = typeof body === 'string' ? Buffer.from(body, encoding) : body;
   const rawURL = `https://${requestContext.domainName}${path}${parseQuery(multiValueQueryStringParameters)}`;
 
-  const rendered = await app.render(
+  const rendered = await server.respond(
     new Request(rawURL, {
       method: httpMethod,
       headers: new Headers(headers),
@@ -41,7 +41,6 @@ export async function handler(event) {
     body: 'Not found.',
   };
 }
-
 function parseQuery(queryParams) {
   if (!queryParams) return '';
   let queryString = '?';

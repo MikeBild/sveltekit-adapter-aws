@@ -13,10 +13,6 @@ export function handler(event, ctx, callback) {
     uri += '/';
   }
 
-  if (uri.slice(-1) === '/') {
-    uri += 'index.html';
-  }
-
   if (staticFiles.includes(uri)) {
     request.uri = uri;
     const domainName = request.origin.custom.customHeaders['s3-host'][0].value;
