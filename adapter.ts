@@ -76,9 +76,7 @@ export function adapter({
       });
 
       builder.log.minor('Prerendering static pages.');
-      await builder.prerender({
-        dest: prerendered_directory,
-      });
+      await builder.writePrerendered(prerendered_directory);
 
       builder.log.minor('Building Lambda@Edge routing function.');
       copyFileSync(`${__dirname}/lambda/router.js`, `${edge_directory}/_index.js`);

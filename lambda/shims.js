@@ -1,1 +1,3 @@
-export { fetch, Response, Request, Headers } from '@sveltejs/kit/install-fetch';
+import { installPolyfills } from '@sveltejs/kit/node/polyfills';
+
+installPolyfills();
