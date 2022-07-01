@@ -2,18 +2,23 @@ import { StackProps, Construct, Stack, Fn, RemovalPolicy, Duration } from '@aws-
 import { Function, AssetCode, Runtime } from '@aws-cdk/aws-lambda';
 import { HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2';
 import { Bucket } from '@aws-cdk/aws-s3';
-import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
+import { BucketDeployment, CacheControl, Source } from '@aws-cdk/aws-s3-deployment';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
+import { HttpOrigin } from '@aws-cdk/aws-cloudfront-origins';
 import {
-  CloudFrontWebDistribution,
   OriginProtocolPolicy,
   PriceClass,
-  CloudFrontAllowedMethods,
-  LambdaEdgeEventType,
+  Distribution,
+  OriginRequestPolicy,
+  CachePolicy,
+  ViewerProtocolPolicy,
+  AllowedMethods,
   SSLMethod,
+  CachedMethods,
+  LambdaEdgeEventType,
 } from '@aws-cdk/aws-cloudfront';
 import { EdgeFunction } from '@aws-cdk/aws-cloudfront/lib/experimental';
-import { DnsValidatedCertificate } from '@aws-cdk/aws-certificatemanager';
+import { DnsValidatedCertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
 
@@ -24,7 +29,7 @@ export interface AWSAdapterStackProps extends StackProps {
 }
 
 export class AWSAdapterStack extends Stack {
-  distribution: CloudFrontWebDistribution;
+  distribution: Distribution;
   bucket: Bucket;
   serverHandler: Function;
   httpApi: HttpApi;
@@ -66,9 +71,9 @@ export class AWSAdapterStack extends Stack {
     const routerLambdaHandler = new EdgeFunction(this, 'RouterEdgeFunctionHandler', {
       code: new AssetCode(edgePath!),
       handler: 'index.handler',
-      runtime: Runtime.NODEJS_14_X,
-      memorySize: 128,
-      timeout: Duration.seconds(1),
+      runtime: Runtime.NODEJS_16_X,
+      timeout: Duration.seconds(5),
+      logRetention: 7,
     });
 
     this.hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
@@ -80,46 +85,31 @@ export class AWSAdapterStack extends Stack {
       hostedZone: this.hostedZone,
     });
 
-    this.distribution = new CloudFrontWebDistribution(this, 'CloudFrontWebDistribution', {
+    this.distribution = new Distribution(this, 'CloudFrontDistribution', {
       priceClass: PriceClass.PRICE_CLASS_100,
       enabled: true,
       defaultRootObject: '',
-      viewerCertificate: {
-        aliases: [props.FQDN],
-        props: {
-          acmCertificateArn: this.certificate.certificateArn,
-          sslSupportMethod: SSLMethod.SNI,
-        },
-      },
-      originConfigs: [
-        {
-          customOriginSource: {
-            domainName: Fn.select(1, Fn.split('://', this.httpApi.apiEndpoint)),
-            originHeaders: { 's3-host': this.bucket.bucketDomainName },
-            originProtocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+      sslSupportMethod: SSLMethod.SNI,
+      domainNames: [props.FQDN],
+      certificate: Certificate.fromCertificateArn(this, 'DomainCertificate', this.certificate.certificateArn),
+      defaultBehavior: {
+        compress: true,
+        edgeLambdas: [
+          {
+            eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
+            functionVersion: routerLambdaHandler.currentVersion,
+            includeBody: true,
           },
-          behaviors: [
-            {
-              isDefaultBehavior: true,
-              compress: true,
-              allowedMethods: CloudFrontAllowedMethods.ALL,
-              forwardedValues: {
-                queryString: true,
-                cookies: {
-                  forward: 'all',
-                },
-              },
-              lambdaFunctionAssociations: [
-                {
-                  eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
-                  lambdaFunction: routerLambdaHandler,
-                  includeBody: true,
-                },
-              ],
-            },
-          ],
-        },
-      ],
+        ],
+        origin: new HttpOrigin(Fn.select(1, Fn.split('://', this.httpApi.apiEndpoint)), {
+          customHeaders: { 's3-host': this.bucket.bucketDomainName },
+          protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+        }),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: AllowedMethods.ALLOW_ALL,
+        originRequestPolicy: OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
+        cachePolicy: CachePolicy.CACHING_DISABLED,
+      },
     });
 
     new ARecord(this, 'ARecord', {
@@ -135,6 +125,7 @@ export class AWSAdapterStack extends Stack {
       prune: true,
       distribution: this.distribution,
       distributionPaths: ['/*'],
+      cacheControl: [CacheControl.maxAge(Duration.days(365))],
     });
   }
 }
