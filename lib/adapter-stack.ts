@@ -71,9 +71,8 @@ export class AWSAdapterStack extends Stack {
     const routerLambdaHandler = new EdgeFunction(this, 'RouterEdgeFunctionHandler', {
       code: new AssetCode(edgePath!),
       handler: 'index.handler',
-      runtime: Runtime.NODEJS_16_X,
-      timeout: Duration.seconds(5),
-      logRetention: 7,
+      runtime: Runtime.NODEJS_14_X,
+      timeout: Duration.seconds(1),  
     });
 
     this.hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
@@ -90,7 +89,7 @@ export class AWSAdapterStack extends Stack {
       enabled: true,
       defaultRootObject: '',
       sslSupportMethod: SSLMethod.SNI,
-      domainNames: [props.FQDN],
+      domainNames: [props.FQDN],      
       certificate: Certificate.fromCertificateArn(this, 'DomainCertificate', this.certificate.certificateArn),
       defaultBehavior: {
         compress: true,
