@@ -56,11 +56,10 @@ export function adapter({
       }
 
       builder.log.minor('Copying asset files.');
-      builder.writeClient(static_directory);
-      builder.writeStatic(static_directory);
+      await builder.writeClient(static_directory);
 
       builder.log.minor('Copying server files.');
-      builder.writeServer(artifactPath);
+      await builder.writeServer(artifactPath);
       copyFileSync(`${__dirname}/lambda/lambda.js`, `${server_directory}/_index.js`);
       copyFileSync(`${__dirname}/lambda/shims.js`, `${server_directory}/shims.js`);
 
