@@ -10,11 +10,19 @@ export async function handler(event) {
   const rawURL = `https://${requestContext.domainName}${path}${parseQuery(multiValueQueryStringParameters)}`;
 
   const rendered = await server.respond(
-    new Request(rawURL, {
-      method: httpMethod,
-      headers: new Headers(headers),
-      body: rawBody,
-    })
+    new Request(
+      rawURL,
+      {
+        method: httpMethod,
+        headers: new Headers(headers),
+        body: rawBody,
+      },
+      {
+        getClientAddress() {
+          return headers.get('x-forwarded-for');
+        },
+      }
+    )
   );
 
   if (rendered) {
