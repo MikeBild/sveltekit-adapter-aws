@@ -1,6 +1,6 @@
 {
   "name": "sveltekit-adapter-aws",
-  "version": "2.2.5",
+  "version": "2.3.0",
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
@@ -34,7 +34,7 @@
     "@aws-cdk/aws-s3": "1.165.0",
     "@aws-cdk/aws-s3-deployment": "1.165.0",
     "@aws-cdk/core": "1.165.0",
-    "@sveltejs/kit": "1.0.0-next.392",
+    "@sveltejs/kit": "1.0.0-next.396",
     "fs-extra": "10.1.0",
     "svelte": "3.49.0"
   },

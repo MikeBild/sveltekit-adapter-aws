@@ -72,6 +72,8 @@ export function adapter({
         format: 'cjs',
         bundle: true,
         platform: 'node',
+        target: 'es2020',
+        treeShaking: true,
       });
 
       builder.log.minor('Prerendering static pages.');
@@ -88,6 +90,8 @@ export function adapter({
         format: 'cjs',
         bundle: true,
         platform: 'node',
+        target: 'es2020',
+        treeShaking: true,
       });
 
       builder.log.minor('Cleanup project.');

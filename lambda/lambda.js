@@ -19,7 +19,9 @@ export async function handler(event) {
 
   if (rendered) {
     const resp = {
-      headers: {},
+      headers: {
+        'cache-control': 'public, immutable, max-age=31536000',
+      },
       multiValueHeaders: {},
       body: await rendered.text(),
       statusCode: rendered.status,
