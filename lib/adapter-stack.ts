@@ -4,7 +4,7 @@ import { HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatew
 import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, CacheControl, Source } from '@aws-cdk/aws-s3-deployment';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { HttpOrigin } from '@aws-cdk/aws-cloudfront-origins';
+import { HttpOrigin, S3Origin } from '@aws-cdk/aws-cloudfront-origins';
 import {
   OriginProtocolPolicy,
   PriceClass,
@@ -14,10 +14,7 @@ import {
   ViewerProtocolPolicy,
   AllowedMethods,
   SSLMethod,
-  CachedMethods,
-  LambdaEdgeEventType,
 } from '@aws-cdk/aws-cloudfront';
-import { EdgeFunction } from '@aws-cdk/aws-cloudfront/lib/experimental';
 import { DnsValidatedCertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
@@ -38,10 +35,10 @@ export class AWSAdapterStack extends Stack {
   constructor(scope: Construct, id: string, props: AWSAdapterStackProps) {
     super(scope, id, props);
 
+    const routes = process.env.ROUTES?.split(',') || [];
     const serverPath = process.env.SERVER_PATH;
     const staticPath = process.env.STATIC_PATH;
     const prerenderedPath = process.env.PRERENDERED_PATH;
-    const edgePath = process.env.EDGE_PATH;
     const [_, zoneName, TLD] = props.FQDN.split('.');
     const domainName = `${zoneName}.${TLD}`;
 
@@ -68,14 +65,6 @@ export class AWSAdapterStack extends Stack {
       autoDeleteObjects: true,
     });
 
-    const routerLambdaHandler = new EdgeFunction(this, 'RouterEdgeFunctionHandler', {
-      code: new AssetCode(edgePath!),
-      handler: 'index.handler',
-      runtime: Runtime.NODEJS_16_X,
-      timeout: Duration.seconds(1),
-      logRetention: 7,
-    });
-
     this.hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
       domainName,
     }) as HostedZone;
@@ -95,15 +84,7 @@ export class AWSAdapterStack extends Stack {
       certificate: Certificate.fromCertificateArn(this, 'DomainCertificate', this.certificate.certificateArn),
       defaultBehavior: {
         compress: true,
-        edgeLambdas: [
-          {
-            eventType: LambdaEdgeEventType.ORIGIN_REQUEST,
-            functionVersion: routerLambdaHandler.currentVersion,
-            includeBody: true,
-          },
-        ],
         origin: new HttpOrigin(Fn.select(1, Fn.split('://', this.httpApi.apiEndpoint)), {
-          customHeaders: { 's3-host': this.bucket.bucketDomainName },
           protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
         }),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -111,6 +92,17 @@ export class AWSAdapterStack extends Stack {
         originRequestPolicy: OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
         cachePolicy: CachePolicy.CACHING_DISABLED,
       },
+    });
+
+    const s3Origin = new S3Origin(this.bucket, {});
+
+    routes.forEach((route) => {
+      this.distribution.addBehavior(route, s3Origin, {
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        originRequestPolicy: OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
+        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+      });
     });
 
     new ARecord(this, 'ARecord', {
@@ -125,7 +117,7 @@ export class AWSAdapterStack extends Stack {
       retainOnDelete: false,
       prune: true,
       distribution: this.distribution,
-      distributionPaths: ['/*'],
+      distributionPaths: routes.map((x) => `/${x}`),
       cacheControl: [CacheControl.maxAge(Duration.days(365))],
     });
   }

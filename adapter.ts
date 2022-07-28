@@ -1,14 +1,5 @@
-import {
-  copyFileSync,
-  unlinkSync,
-  existsSync,
-  mkdirSync,
-  emptyDirSync,
-  readdirSync,
-  statSync,
-  writeFileSync,
-} from 'fs-extra';
-import { join } from 'path';
+import { copyFileSync, unlinkSync, existsSync, mkdirSync, emptyDirSync } from 'fs-extra';
+import { join, dirname } from 'path';
 import { spawnSync } from 'child_process';
 import * as esbuild from 'esbuild';
 
@@ -50,13 +41,8 @@ export function adapter({
         mkdirSync(server_directory, { recursive: true });
       }
 
-      const edge_directory = join(artifactPath, 'edge');
-      if (!existsSync(edge_directory)) {
-        mkdirSync(edge_directory, { recursive: true });
-      }
-
       builder.log.minor('Copying asset files.');
-      await builder.writeClient(static_directory);
+      const clientFiles = await builder.writeClient(static_directory);
 
       builder.log.minor('Copying server files.');
       await builder.writeServer(artifactPath);
@@ -77,27 +63,22 @@ export function adapter({
       });
 
       builder.log.minor('Prerendering static pages.');
-      await builder.writePrerendered(prerendered_directory);
-
-      builder.log.minor('Building Lambda@Edge routing function.');
-      copyFileSync(`${__dirname}/lambda/router.js`, `${edge_directory}/_index.js`);
-      let files = JSON.stringify([...getAllFiles(static_directory), ...getAllFiles(prerendered_directory)]);
-      writeFileSync(`${edge_directory}/static.js`, `export default ${files}`);
-
-      esbuild.buildSync({
-        entryPoints: [`${edge_directory}/_index.js`],
-        outfile: `${edge_directory}/index.js`,
-        format: 'cjs',
-        bundle: true,
-        platform: 'node',
-        target: 'es2020',
-        treeShaking: true,
-      });
+      const prerenderedFiles = await builder.writePrerendered(prerendered_directory);
 
       builder.log.minor('Cleanup project.');
       unlinkSync(`${server_directory}/_index.js`);
-      unlinkSync(`${edge_directory}/_index.js`);
       unlinkSync(`${artifactPath}/index.js`);
+
+      builder.log.minor('Exporting routes.');
+      const routes = [
+        ...new Set(
+          [...clientFiles, ...prerenderedFiles].map((x) => {
+            const z = dirname(x);
+            if (z === '.') return x;
+            return `${z}/*`;
+          })
+        ),
+      ];
 
       builder.log.minor('Deploy using AWS-CDK.');
       autoDeploy &&
@@ -109,7 +90,7 @@ export function adapter({
               SERVER_PATH: join(process.cwd(), server_directory),
               STATIC_PATH: join(process.cwd(), static_directory),
               PRERENDERED_PATH: join(process.cwd(), prerendered_directory),
-              EDGE_PATH: join(process.cwd(), edge_directory),
+              ROUTES: routes,
               STACKNAME: stackName,
               FQDN,
             },
@@ -122,17 +103,3 @@ export function adapter({
     },
   };
 }
-
-const getAllFiles = function (dirPath: string, basePath?: string, arrayOfFiles: string[] = []) {
-  basePath = basePath || dirPath;
-
-  readdirSync(dirPath).forEach(function (file) {
-    if (statSync(dirPath + '/' + file).isDirectory()) {
-      arrayOfFiles = getAllFiles(dirPath + '/' + file, basePath, arrayOfFiles);
-    } else {
-      arrayOfFiles.push(join('/', dirPath.replace(basePath!, ''), '/', file));
-    }
-  });
-
-  return arrayOfFiles;
-};
