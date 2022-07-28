@@ -66,7 +66,6 @@ export class AWSAdapterStack extends Stack {
     this.bucket = new Bucket(this, 'StaticContentBucket', {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      publicReadAccess: true,
     });
 
     const routerLambdaHandler = new EdgeFunction(this, 'RouterEdgeFunctionHandler', {
