@@ -1,12 +1,31 @@
 {
   "name": "sveltekit-adapter-aws",
+  "description": "SvelteKit to deploy your project using AWS CDK.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikeBild/sveltekit-adapter-aws.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MikeBild/sveltekit-adapter-aws/issues"
+  },
+  "homepage": "https://github.com/MikeBild/sveltekit-adapter-aws#readme",
+  "license": "MIT",
+  "keywords": [
+    "sveltekit",
+    "adapter",
+    "aws",
+    "cdk"
+  ],
+  "author": "mike.bild@gmail.com",
   "version": "2.4.2",
   "main": "./index.js",
   "types": "./index.d.ts",
+  "bin": {
+    "destroy": "bin/destroy.js"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "cdk": "cdk",
     "format": "prettier --write ."
   },
   "devDependencies": {
@@ -29,8 +48,6 @@
     "@aws-cdk/aws-s3-deployment": "1.165.0",
     "@aws-cdk/core": "1.165.0",
     "@sveltejs/kit": "1.0.0-next.396",
-    "fs-extra": "10.1.0",
-    "svelte": "3.49.0"
-  },
-  "type": "commonjs"
+    "fs-extra": "10.1.0"
+  }
 }
