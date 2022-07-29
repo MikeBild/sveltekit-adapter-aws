@@ -39,7 +39,7 @@ export class AWSAdapterStack extends Stack {
     const serverPath = process.env.SERVER_PATH;
     const staticPath = process.env.STATIC_PATH;
     const prerenderedPath = process.env.PRERENDERED_PATH;
-    const [_, zoneName, TLD] = props.FQDN.split('.');
+    const [_, zoneName, TLD] = props.FQDN?.split('.') || [];
     const domainName = `${zoneName}.${TLD}`;
 
     this.serverHandler = new Function(this, 'LambdaServerFunctionHandler', {
