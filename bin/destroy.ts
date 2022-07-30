@@ -9,7 +9,10 @@ const server_directory = join(artifactPath, 'server');
 
 (async () => {
   const config = await import(join(process.cwd(), 'sveltekit-adapter-aws.out.json'));
-  const [stackName] = Object.keys(config);
+  const [stackName, stackConfig] = Object.entries(config).find((x: any) => x[1]?.appUrl) as [
+    string,
+    { appUrl: string }
+  ];
 
   spawnSync('npx', ['cdk', 'destroy', '--app', `${__dirname}/../deploy/index.js`, '*', '--force'], {
     cwd: __dirname,
@@ -19,7 +22,7 @@ const server_directory = join(artifactPath, 'server');
         SERVER_PATH: join(process.cwd(), server_directory),
         STATIC_PATH: join(process.cwd(), static_directory),
         PRERENDERED_PATH: join(process.cwd(), prerendered_directory),
-        FQDN: config[stackName].appUrl,
+        FQDN: stackConfig.appUrl,
         STACKNAME: stackName,
       },
       process.env
