@@ -122,6 +122,6 @@ export class AWSAdapterStack extends Stack {
     });
 
     new CfnOutput(this, 'appUrl', { value: props.FQDN });
-    new CfnOutput(this, 'apiUrl', { value: this.httpApi.url || '' });
+    new CfnOutput(this, 'apiUrl', { value: this.httpApi.url?.replace('https://', '').replace('/', '') || '' });
   }
 }

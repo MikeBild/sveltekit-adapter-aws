@@ -19,7 +19,7 @@ const server_directory = join(artifactPath, 'server');
         SERVER_PATH: join(process.cwd(), server_directory),
         STATIC_PATH: join(process.cwd(), static_directory),
         PRERENDERED_PATH: join(process.cwd(), prerendered_directory),
-        FQDN: config[stackName].FQDN,
+        FQDN: config[stackName].appUrl,
         STACKNAME: stackName,
       },
       process.env
