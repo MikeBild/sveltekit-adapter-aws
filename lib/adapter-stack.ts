@@ -1,4 +1,4 @@
-import { StackProps, Construct, Stack, Fn, RemovalPolicy, Duration } from '@aws-cdk/core';
+import { StackProps, Construct, Stack, Fn, RemovalPolicy, Duration, CfnOutput } from '@aws-cdk/core';
 import { Function, AssetCode, Runtime } from '@aws-cdk/aws-lambda';
 import { HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2';
 import { Bucket } from '@aws-cdk/aws-s3';
@@ -120,5 +120,8 @@ export class AWSAdapterStack extends Stack {
       distributionPaths: routes.map((x) => `/${x}`),
       cacheControl: [CacheControl.maxAge(Duration.days(365))],
     });
+
+    new CfnOutput(this, 'appUrl', { value: props.FQDN });
+    new CfnOutput(this, 'apiUrl', { value: this.httpApi.url || '' });
   }
 }
