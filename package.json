@@ -17,7 +17,7 @@
     "cdk"
   ],
   "author": "mike.bild@gmail.com",
-  "version": "3.0.9",
+  "version": "3.1.0",
   "main": "./index.js",
   "types": "./index.d.ts",
   "bin": {
