@@ -1,7 +1,9 @@
-import { copyFileSync, unlinkSync, existsSync, mkdirSync, emptyDirSync } from 'fs-extra';
+import { config } from 'dotenv';
+import { copyFileSync, unlinkSync, existsSync, mkdirSync, emptyDirSync, readFileSync, removeSync } from 'fs-extra';
 import { join, dirname } from 'path';
 import { spawnSync } from 'child_process';
 import * as esbuild from 'esbuild';
+const updateDotenv = require('update-dotenv');
 
 export interface AWSAdapterProps {
   artifactPath?: string;
@@ -24,6 +26,7 @@ export function adapter({
   return {
     name: 'adapter-awscdk',
     async adapt(builder: any) {
+      const environment = config({ path: join(process.cwd(), '.env') });
       emptyDirSync(artifactPath);
 
       const static_directory = join(artifactPath, 'assets');
@@ -70,16 +73,20 @@ export function adapter({
       unlinkSync(`${artifactPath}/index.js`);
 
       builder.log.minor('Exporting routes.');
+
       const routes = [
         ...new Set(
-          [...clientFiles, ...prerenderedFiles].map((x) => {
-            const z = dirname(x);
-            if (z === '.') return x;
-            return `${z}/*`;
-          })
+          [...clientFiles, ...prerenderedFiles]
+            .map((x) => {
+              const z = dirname(x);
+              if (z === '.') return x;
+              if (z.includes('/')) return undefined;
+              return `${z}/*`;
+            })
+            .filter(Boolean)
         ),
       ];
-
+      
       builder.log.minor('Deploy using AWS-CDK.');
       autoDeploy &&
         spawnSync(
@@ -93,13 +100,14 @@ export function adapter({
             '--require-approval',
             'never',
             '--outputsFile',
-            join(process.cwd(), 'sveltekit-adapter-aws.out.json'),
+            join(__dirname, 'cdk.out', 'cdk-env-vars.json'),
           ],
           {
             cwd: __dirname,
             stdio: [process.stdin, process.stdout, process.stderr],
             env: Object.assign(
               {
+                PROJECT_PATH: join(process.cwd(), '.env'),
                 SERVER_PATH: join(process.cwd(), server_directory),
                 STATIC_PATH: join(process.cwd(), static_directory),
                 PRERENDERED_PATH: join(process.cwd(), prerendered_directory),
@@ -113,7 +121,24 @@ export function adapter({
           }
         );
 
-      builder.log.minor('Done.');
+      const rawData = readFileSync(join(__dirname, 'cdk.out', 'cdk-env-vars.json')).toString();
+      const data = JSON.parse(rawData);
+      const out = Object.keys(data).reduce(
+        (p, n) => ({
+          ...p,
+          ...Object.keys(data[n])
+            .filter((x: string) => !x.includes('ExportsOutput'))
+            .reduce((p: any, x: string) => {
+              p[x.toUpperCase()] = data[n][x];
+              return p;
+            }, {}),
+        }),
+        {}
+      );
+
+      updateDotenv({ ...environment.parsed, ...out });
+
+      builder.log.minor('AWS-CDK deployment done.');
     },
   };
 }

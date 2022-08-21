@@ -18,6 +18,7 @@ import {
 import { DnsValidatedCertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
+import { config } from 'dotenv';
 
 export interface AWSAdapterStackProps extends StackProps {
   FQDN: string;
@@ -36,11 +37,13 @@ export class AWSAdapterStack extends Stack {
     super(scope, id, props);
 
     const routes = process.env.ROUTES?.split(',') || [];
+    const projectPath = process.env.PROJECT_PATH;
     const serverPath = process.env.SERVER_PATH;
     const staticPath = process.env.STATIC_PATH;
     const prerenderedPath = process.env.PRERENDERED_PATH;
     const [_, zoneName, TLD] = props.FQDN?.split('.') || [];
     const domainName = `${zoneName}.${TLD}`;
+    const environment = config({ path: projectPath });
 
     this.serverHandler = new Function(this, 'LambdaServerFunctionHandler', {
       code: new AssetCode(serverPath!),
@@ -49,6 +52,9 @@ export class AWSAdapterStack extends Stack {
       memorySize: 256,
       timeout: Duration.minutes(15),
       logRetention: 7,
+      environment: {
+        ...environment.parsed,
+      },
     });
 
     this.httpApi = new HttpApi(this, 'API');
@@ -121,7 +127,7 @@ export class AWSAdapterStack extends Stack {
       cacheControl: [CacheControl.maxAge(Duration.days(365))],
     });
 
-    new CfnOutput(this, 'appUrl', { value: props.FQDN });
-    new CfnOutput(this, 'apiUrl', { value: this.httpApi.url?.replace('https://', '').replace('/', '') || '' });
+    new CfnOutput(this, 'appUrl', { value: `https://${props.FQDN}` });
+    new CfnOutput(this, 'apiUrl', { value: this.httpApi.url || '' });
   }
 }
