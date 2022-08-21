@@ -41,7 +41,7 @@ export class AWSAdapterStack extends Stack {
     const serverPath = process.env.SERVER_PATH;
     const staticPath = process.env.STATIC_PATH;
     const prerenderedPath = process.env.PRERENDERED_PATH;
-    const [_, zoneName, TLD] = props.FQDN?.split('.') || [];
+    const [_, zoneName, TLD] = process.env.FQDN?.split('.') || [];
     const domainName = `${zoneName}.${TLD}`;
     const environment = config({ path: projectPath });
 
@@ -76,7 +76,7 @@ export class AWSAdapterStack extends Stack {
     }) as HostedZone;
 
     this.certificate = new DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
-      domainName: props.FQDN,
+      domainName: process.env.FQDN!,
       hostedZone: this.hostedZone,
       region: 'us-east-1',
     });
@@ -86,7 +86,7 @@ export class AWSAdapterStack extends Stack {
       enabled: true,
       defaultRootObject: '',
       sslSupportMethod: SSLMethod.SNI,
-      domainNames: [props.FQDN],
+      domainNames: [process.env.FQDN!],
       certificate: Certificate.fromCertificateArn(this, 'DomainCertificate', this.certificate.certificateArn),
       defaultBehavior: {
         compress: true,
@@ -112,7 +112,7 @@ export class AWSAdapterStack extends Stack {
     });
 
     new ARecord(this, 'ARecord', {
-      recordName: props.FQDN,
+      recordName: process.env.FQDN,
       target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
       zone: this.hostedZone,
     });
@@ -127,7 +127,7 @@ export class AWSAdapterStack extends Stack {
       cacheControl: [CacheControl.maxAge(Duration.days(365))],
     });
 
-    new CfnOutput(this, 'appUrl', { value: `https://${props.FQDN}` });
+    new CfnOutput(this, 'appUrl', { value: `https://${process.env.FQDN}` });
     new CfnOutput(this, 'apiUrl', { value: this.httpApi.url || '' });
   }
 }
