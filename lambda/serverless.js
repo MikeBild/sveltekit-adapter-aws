@@ -7,9 +7,12 @@ export async function handler(event) {
   const { path, headers, body, httpMethod, multiValueQueryStringParameters, requestContext, isBase64Encoded } = event;
   const encoding = isBase64Encoded ? 'base64' : (headers && headers['content-encoding']) || 'utf-8';
   const rawBody = typeof body === 'string' ? Buffer.from(body, encoding) : body;
+  const searchParams = (headers && headers.referer && new URL(headers.referer).searchParams) || {};
   const queryParams = multiValueQueryStringParameters
     ? parseQuery(multiValueQueryStringParameters)
-    : `?${new URL(headers.referer).searchParams.toString()}`;
+    : searchParams?.entries?.length
+    ? `?${searchParams?.toString()}`
+    : '';
   const rawURL = `https://${requestContext.domainName}${path}${queryParams}`;
 
   const rendered = await server.respond(

@@ -49,7 +49,7 @@ export class AWSAdapterStack extends Stack {
       code: new AssetCode(serverPath!),
       handler: 'index.handler',
       runtime: Runtime.NODEJS_16_X,
-      memorySize: 256,
+      memorySize: 128,
       timeout: Duration.minutes(15),
       logRetention: 7,
       environment: {
