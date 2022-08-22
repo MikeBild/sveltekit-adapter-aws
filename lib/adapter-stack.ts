@@ -95,8 +95,6 @@ export class AWSAdapterStack extends Stack {
           protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
         }),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        responseHeadersPolicy: ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
-        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
         allowedMethods: AllowedMethods.ALLOW_ALL,
         cachePolicy: new CachePolicy(this, 'CachePolicy', {
           cookieBehavior: CacheCookieBehavior.none(),
