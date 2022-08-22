@@ -18,6 +18,9 @@ import {
   CacheCookieBehavior,
   CacheHeaderBehavior,
   ResponseHeadersPolicy,
+  OriginRequestCookieBehavior,
+  OriginRequestHeaderBehavior,
+  OriginRequestQueryStringBehavior,
 } from '@aws-cdk/aws-cloudfront';
 import { DnsValidatedCertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
@@ -96,21 +99,21 @@ export class AWSAdapterStack extends Stack {
         }),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_ALL,
-        cachePolicy: new CachePolicy(this, 'CachePolicy', {
-          cookieBehavior: CacheCookieBehavior.all(),
-          headerBehavior: CacheHeaderBehavior.allowList(
-            'Authorization',
+        originRequestPolicy: new OriginRequestPolicy(this, 'OriginRequestPolicy', {
+          cookieBehavior: OriginRequestCookieBehavior.all(),
+          queryStringBehavior: OriginRequestQueryStringBehavior.all(),
+          headerBehavior: OriginRequestHeaderBehavior.allowList(
             'Origin',
             'Accept-Charset',
             'Accept',
+            'Access-Control-Request-Method',
+            'Access-Control-Request-Headers',
             'Referer',
             'Accept-Language',
             'Accept-Datetime'
           ),
-          queryStringBehavior: CacheQueryStringBehavior.all(),
-          enableAcceptEncodingGzip: true,
-          enableAcceptEncodingBrotli: true,
         }),
+        cachePolicy: CachePolicy.CACHING_DISABLED,
       },
     });
 
