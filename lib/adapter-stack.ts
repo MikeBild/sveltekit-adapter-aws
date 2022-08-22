@@ -97,8 +97,16 @@ export class AWSAdapterStack extends Stack {
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_ALL,
         cachePolicy: new CachePolicy(this, 'CachePolicy', {
-          cookieBehavior: CacheCookieBehavior.none(),
-          headerBehavior: CacheHeaderBehavior.none(),
+          cookieBehavior: CacheCookieBehavior.all(),
+          headerBehavior: CacheHeaderBehavior.allowList(
+            'Authorization',
+            'Origin',
+            'Accept-Charset',
+            'Accept',
+            'Referer',
+            'Accept-Language',
+            'Accept-Datetime'
+          ),
           queryStringBehavior: CacheQueryStringBehavior.all(),
           enableAcceptEncodingGzip: true,
           enableAcceptEncodingBrotli: true,
