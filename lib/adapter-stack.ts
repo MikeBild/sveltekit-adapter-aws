@@ -1,6 +1,6 @@
 import { StackProps, Construct, Stack, Fn, RemovalPolicy, Duration, CfnOutput } from '@aws-cdk/core';
 import { Function, AssetCode, Runtime } from '@aws-cdk/aws-lambda';
-import { HttpApi, HttpMethod, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2';
+import { HttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, CacheControl, Source } from '@aws-cdk/aws-s3-deployment';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
@@ -14,6 +14,10 @@ import {
   ViewerProtocolPolicy,
   AllowedMethods,
   SSLMethod,
+  CacheQueryStringBehavior,
+  CacheCookieBehavior,
+  CacheHeaderBehavior,
+  ResponseHeadersPolicy,
 } from '@aws-cdk/aws-cloudfront';
 import { DnsValidatedCertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
 import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
@@ -57,11 +61,8 @@ export class AWSAdapterStack extends Stack {
       },
     });
 
-    this.httpApi = new HttpApi(this, 'API');
-    this.httpApi.addRoutes({
-      path: '/{proxy+}',
-      methods: [HttpMethod.ANY],
-      integration: new HttpLambdaIntegration('LambdaServerIntegration', this.serverHandler, {
+    this.httpApi = new HttpApi(this, 'API', {
+      defaultIntegration: new HttpLambdaIntegration('LambdaServerIntegration', this.serverHandler, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_1_0,
       }),
     });
@@ -94,9 +95,16 @@ export class AWSAdapterStack extends Stack {
           protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
         }),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        responseHeadersPolicy: ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
+        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
         allowedMethods: AllowedMethods.ALLOW_ALL,
-        originRequestPolicy: OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
-        cachePolicy: CachePolicy.CACHING_DISABLED,
+        cachePolicy: new CachePolicy(this, 'CachePolicy', {
+          cookieBehavior: CacheCookieBehavior.none(),
+          headerBehavior: CacheHeaderBehavior.none(),
+          queryStringBehavior: CacheQueryStringBehavior.all(),
+          enableAcceptEncodingGzip: true,
+          enableAcceptEncodingBrotli: true,
+        }),
       },
     });
 
