@@ -140,7 +140,7 @@ export class AWSAdapterStack extends Stack {
       retainOnDelete: false,
       prune: true,
       distribution: this.distribution,
-      distributionPaths: routes.map((x) => `/${x}`),
+      distributionPaths: ['/*'],
       cacheControl: [CacheControl.maxAge(Duration.days(365))],
     });
 
