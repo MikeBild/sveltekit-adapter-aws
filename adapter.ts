@@ -11,6 +11,8 @@ export interface AWSAdapterProps {
   cdkProjectPath?: string;
   stackName?: string;
   FQDN?: string;
+  LOG_RETENTION_DAYS?: number;
+  MEMORY_SIZE?: number;
   env?: { [key: string]: string };
 }
 
@@ -20,6 +22,8 @@ export function adapter({
   cdkProjectPath = `${__dirname}/deploy/index.js`,
   stackName = '*',
   FQDN,
+  LOG_RETENTION_DAYS,
+  MEMORY_SIZE,
   env = {},
 }: AWSAdapterProps) {
   /** @type {import('@sveltejs/kit').Adapter} */
@@ -86,7 +90,7 @@ export function adapter({
             .filter(Boolean)
         ),
       ];
-      
+
       builder.log.minor('Deploy using AWS-CDK.');
       autoDeploy &&
         spawnSync(
@@ -114,6 +118,8 @@ export function adapter({
                 ROUTES: routes,
                 STACKNAME: stackName,
                 FQDN,
+                LOG_RETENTION_DAYS,
+                MEMORY_SIZE,
               },
               process.env,
               env

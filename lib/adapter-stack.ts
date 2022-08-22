@@ -48,6 +48,8 @@ export class AWSAdapterStack extends Stack {
     const serverPath = process.env.SERVER_PATH;
     const staticPath = process.env.STATIC_PATH;
     const prerenderedPath = process.env.PRERENDERED_PATH;
+    const logRetention = parseInt(process.env.LOG_RETENTION_DAYS!) || 7;
+    const memorySize = parseInt(process.env.MEMORY_SIZE!) || 128;
     const [_, zoneName, TLD] = process.env.FQDN?.split('.') || [];
     const domainName = `${zoneName}.${TLD}`;
     const environment = config({ path: projectPath });
@@ -56,9 +58,9 @@ export class AWSAdapterStack extends Stack {
       code: new AssetCode(serverPath!),
       handler: 'index.handler',
       runtime: Runtime.NODEJS_16_X,
-      memorySize: 128,
       timeout: Duration.minutes(15),
-      logRetention: 7,
+      memorySize,
+      logRetention,
       environment: {
         ...environment.parsed,
       },
