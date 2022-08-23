@@ -61,7 +61,6 @@ export class AWSAdapterStack extends Stack {
 
     this.httpApi = new HttpApi(this, 'API', {
       corsPreflight: {
-        allowCredentials: true,
         allowHeaders: ['*'],
         allowMethods: [CorsHttpMethod.ANY],
         allowOrigins: ['*'],
