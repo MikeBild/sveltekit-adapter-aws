@@ -139,7 +139,11 @@ export class AWSAdapterStack extends Stack {
       prune: true,
       distribution: this.distribution,
       distributionPaths: ['/*'],
-      cacheControl: [aws_s3_deployment.CacheControl.maxAge(Duration.days(365))],
+      cacheControl: [
+        aws_s3_deployment.CacheControl.setPublic(),
+        aws_s3_deployment.CacheControl.maxAge(Duration.days(365)),
+        aws_s3_deployment.CacheControl.fromString('immutable'),
+      ],
     });
 
     new CfnOutput(this, 'appUrl', { value: `https://${process.env.FQDN}` });
