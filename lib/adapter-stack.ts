@@ -15,7 +15,7 @@ import {
   aws_route53_targets,
   aws_cloudfront,
 } from 'aws-cdk-lib';
-import { HttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { CorsHttpMethod, HttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { config } from 'dotenv';
 
@@ -60,6 +60,13 @@ export class AWSAdapterStack extends Stack {
     });
 
     this.httpApi = new HttpApi(this, 'API', {
+      corsPreflight: {
+        allowCredentials: true,
+        allowHeaders: ['*'],
+        allowMethods: [CorsHttpMethod.ANY],
+        allowOrigins: ['*'],
+        maxAge: Duration.days(1),
+      },
       defaultIntegration: new HttpLambdaIntegration('LambdaServerIntegration', this.serverHandler, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_1_0,
       }),
@@ -143,6 +150,5 @@ export class AWSAdapterStack extends Stack {
     });
 
     new CfnOutput(this, 'appUrl', { value: `https://${process.env.FQDN}` });
-    new CfnOutput(this, 'apiUrl', { value: this.httpApi.url || '' });
   }
 }
