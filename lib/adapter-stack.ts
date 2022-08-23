@@ -1,30 +1,22 @@
-import { StackProps, Construct, Stack, Fn, RemovalPolicy, Duration, CfnOutput } from '@aws-cdk/core';
-import { Function, AssetCode, Runtime } from '@aws-cdk/aws-lambda';
-import { HttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2';
-import { Bucket } from '@aws-cdk/aws-s3';
-import { BucketDeployment, CacheControl, Source } from '@aws-cdk/aws-s3-deployment';
-import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { HttpOrigin, S3Origin } from '@aws-cdk/aws-cloudfront-origins';
+import { Construct } from 'constructs';
 import {
-  OriginProtocolPolicy,
-  PriceClass,
-  Distribution,
-  OriginRequestPolicy,
-  CachePolicy,
-  ViewerProtocolPolicy,
-  AllowedMethods,
-  SSLMethod,
-  CacheQueryStringBehavior,
-  CacheCookieBehavior,
-  CacheHeaderBehavior,
-  ResponseHeadersPolicy,
-  OriginRequestCookieBehavior,
-  OriginRequestHeaderBehavior,
-  OriginRequestQueryStringBehavior,
-} from '@aws-cdk/aws-cloudfront';
-import { DnsValidatedCertificate, Certificate } from '@aws-cdk/aws-certificatemanager';
-import { HostedZone, RecordTarget, ARecord } from '@aws-cdk/aws-route53';
-import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
+  StackProps,
+  Stack,
+  Fn,
+  RemovalPolicy,
+  Duration,
+  CfnOutput,
+  aws_lambda,
+  aws_s3,
+  aws_s3_deployment,
+  aws_cloudfront_origins,
+  aws_certificatemanager,
+  aws_route53,
+  aws_route53_targets,
+  aws_cloudfront,
+} from 'aws-cdk-lib';
+import { HttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { config } from 'dotenv';
 
 export interface AWSAdapterStackProps extends StackProps {
@@ -34,12 +26,12 @@ export interface AWSAdapterStackProps extends StackProps {
 }
 
 export class AWSAdapterStack extends Stack {
-  distribution: Distribution;
-  bucket: Bucket;
-  serverHandler: Function;
+  distribution: aws_cloudfront.Distribution;
+  bucket: aws_s3.Bucket;
+  serverHandler: aws_lambda.Function;
   httpApi: HttpApi;
-  hostedZone: HostedZone;
-  certificate: DnsValidatedCertificate;
+  hostedZone: aws_route53.HostedZone;
+  certificate: aws_certificatemanager.DnsValidatedCertificate;
   constructor(scope: Construct, id: string, props: AWSAdapterStackProps) {
     super(scope, id, props);
 
@@ -54,10 +46,10 @@ export class AWSAdapterStack extends Stack {
     const domainName = `${zoneName}.${TLD}`;
     const environment = config({ path: projectPath });
 
-    this.serverHandler = new Function(this, 'LambdaServerFunctionHandler', {
-      code: new AssetCode(serverPath!),
+    this.serverHandler = new aws_lambda.Function(this, 'LambdaServerFunctionHandler', {
+      code: new aws_lambda.AssetCode(serverPath!),
       handler: 'index.handler',
-      runtime: Runtime.NODEJS_16_X,
+      runtime: aws_lambda.Runtime.NODEJS_16_X,
       timeout: Duration.minutes(15),
       memorySize,
       logRetention,
@@ -72,39 +64,43 @@ export class AWSAdapterStack extends Stack {
       }),
     });
 
-    this.bucket = new Bucket(this, 'StaticContentBucket', {
+    this.bucket = new aws_s3.Bucket(this, 'StaticContentBucket', {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
 
-    this.hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
+    this.hostedZone = aws_route53.HostedZone.fromLookup(this, 'HostedZone', {
       domainName,
-    }) as HostedZone;
+    }) as aws_route53.HostedZone;
 
-    this.certificate = new DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
+    this.certificate = new aws_certificatemanager.DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
       domainName: process.env.FQDN!,
       hostedZone: this.hostedZone,
       region: 'us-east-1',
     });
 
-    this.distribution = new Distribution(this, 'CloudFrontDistribution', {
-      priceClass: PriceClass.PRICE_CLASS_100,
+    this.distribution = new aws_cloudfront.Distribution(this, 'CloudFrontDistribution', {
+      priceClass: aws_cloudfront.PriceClass.PRICE_CLASS_100,
       enabled: true,
       defaultRootObject: '',
-      sslSupportMethod: SSLMethod.SNI,
+      sslSupportMethod: aws_cloudfront.SSLMethod.SNI,
       domainNames: [process.env.FQDN!],
-      certificate: Certificate.fromCertificateArn(this, 'DomainCertificate', this.certificate.certificateArn),
+      certificate: aws_certificatemanager.Certificate.fromCertificateArn(
+        this,
+        'DomainCertificate',
+        this.certificate.certificateArn
+      ),
       defaultBehavior: {
         compress: true,
-        origin: new HttpOrigin(Fn.select(1, Fn.split('://', this.httpApi.apiEndpoint)), {
-          protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+        origin: new aws_cloudfront_origins.HttpOrigin(Fn.select(1, Fn.split('://', this.httpApi.apiEndpoint)), {
+          protocolPolicy: aws_cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
         }),
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        allowedMethods: AllowedMethods.ALLOW_ALL,
-        originRequestPolicy: new OriginRequestPolicy(this, 'OriginRequestPolicy', {
-          cookieBehavior: OriginRequestCookieBehavior.all(),
-          queryStringBehavior: OriginRequestQueryStringBehavior.all(),
-          headerBehavior: OriginRequestHeaderBehavior.allowList(
+        viewerProtocolPolicy: aws_cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: aws_cloudfront.AllowedMethods.ALLOW_ALL,
+        originRequestPolicy: new aws_cloudfront.OriginRequestPolicy(this, 'OriginRequestPolicy', {
+          cookieBehavior: aws_cloudfront.OriginRequestCookieBehavior.all(),
+          queryStringBehavior: aws_cloudfront.OriginRequestQueryStringBehavior.all(),
+          headerBehavior: aws_cloudfront.OriginRequestHeaderBehavior.allowList(
             'Origin',
             'Accept-Charset',
             'Accept',
@@ -115,35 +111,35 @@ export class AWSAdapterStack extends Stack {
             'Accept-Datetime'
           ),
         }),
-        cachePolicy: CachePolicy.CACHING_DISABLED,
+        cachePolicy: aws_cloudfront.CachePolicy.CACHING_DISABLED,
       },
     });
 
-    const s3Origin = new S3Origin(this.bucket, {});
+    const s3Origin = new aws_cloudfront_origins.S3Origin(this.bucket, {});
 
     routes.forEach((route) => {
       this.distribution.addBehavior(route, s3Origin, {
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        originRequestPolicy: OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+        viewerProtocolPolicy: aws_cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: aws_cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        originRequestPolicy: aws_cloudfront.OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
+        cachePolicy: aws_cloudfront.CachePolicy.CACHING_OPTIMIZED,
       });
     });
 
-    new ARecord(this, 'ARecord', {
+    new aws_route53.ARecord(this, 'ARecord', {
       recordName: process.env.FQDN,
-      target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
+      target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(this.distribution)),
       zone: this.hostedZone,
     });
 
-    new BucketDeployment(this, 'StaticContentDeployment', {
+    new aws_s3_deployment.BucketDeployment(this, 'StaticContentDeployment', {
       destinationBucket: this.bucket,
-      sources: [Source.asset(staticPath!), Source.asset(prerenderedPath!)],
+      sources: [aws_s3_deployment.Source.asset(staticPath!), aws_s3_deployment.Source.asset(prerenderedPath!)],
       retainOnDelete: false,
       prune: true,
       distribution: this.distribution,
       distributionPaths: ['/*'],
-      cacheControl: [CacheControl.maxAge(Duration.days(365))],
+      cacheControl: [aws_s3_deployment.CacheControl.maxAge(Duration.days(365))],
     });
 
     new CfnOutput(this, 'appUrl', { value: `https://${process.env.FQDN}` });

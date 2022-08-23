@@ -1,10 +1,14 @@
 #!/usr/bin/env node
-import { App } from '@aws-cdk/core';
+import { App, Tags } from 'aws-cdk-lib';
 import { AWSAdapterStack } from '../lib/adapter-stack';
 
 const app = new App();
+Tags.of(app).add('app', 'sveltekit-adapter-aws-webapp');
 
-new AWSAdapterStack(app, process.env.STACKNAME || 'AWSAdapterStack-Default', {
-  env: { region: process.env.CDK_DEFAULT_REGION, account: process.env.CDK_DEFAULT_ACCOUNT },
+new AWSAdapterStack(app, process.env.STACKNAME || 'sveltekit-adapter-aws-webapp', {
   FQDN: process.env.FQDN!,
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: process.env.CDK_DEFAULT_REGION,
+  },
 });

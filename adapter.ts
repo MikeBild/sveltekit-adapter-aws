@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-import { copyFileSync, unlinkSync, existsSync, mkdirSync, emptyDirSync, readFileSync, removeSync } from 'fs-extra';
+import { copyFileSync, unlinkSync, existsSync, mkdirSync, emptyDirSync, readFileSync } from 'fs-extra';
 import { join, dirname } from 'path';
 import { spawnSync } from 'child_process';
 import * as esbuild from 'esbuild';
@@ -127,22 +127,24 @@ export function adapter({
           }
         );
 
-      const rawData = readFileSync(join(__dirname, 'cdk.out', 'cdk-env-vars.json')).toString();
-      const data = JSON.parse(rawData);
-      const out = Object.keys(data).reduce(
-        (p, n) => ({
-          ...p,
-          ...Object.keys(data[n])
-            .filter((x: string) => !x.includes('ExportsOutput'))
-            .reduce((p: any, x: string) => {
-              p[x.toUpperCase()] = data[n][x];
-              return p;
-            }, {}),
-        }),
-        {}
-      );
+      try {
+        const rawData = readFileSync(join(__dirname, 'cdk.out', 'cdk-env-vars.json')).toString();
+        const data = JSON.parse(rawData);
+        const out = Object.keys(data).reduce(
+          (p, n) => ({
+            ...p,
+            ...Object.keys(data[n])
+              .filter((x: string) => !x.includes('ExportsOutput'))
+              .reduce((p: any, x: string) => {
+                p[x.toUpperCase()] = data[n][x];
+                return p;
+              }, {}),
+          }),
+          {}
+        );
 
-      updateDotenv({ ...environment.parsed, ...out });
+        updateDotenv({ ...environment.parsed, ...out });
+      } catch {}
 
       builder.log.minor('AWS-CDK deployment done.');
     },
