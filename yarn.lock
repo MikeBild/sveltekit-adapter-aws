@@ -40,10 +40,10 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sveltejs/kit@1.0.0-next.429":
-  version "1.0.0-next.429"
-  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-1.0.0-next.429.tgz#2975154f759dd1df1d5c544eeffe01caafe20963"
-  integrity sha512-u5/RugPTeaT2e7oHKKZh0uy1qzqphhJOS5QBxr2D/JXYqSjEJcyFnXXpzmqo6lB1Oxlj88WF9Ozul6Wlekvyew==
+"@sveltejs/kit@1.0.0-next.430":
+  version "1.0.0-next.430"
+  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-1.0.0-next.430.tgz#5748acbd69c9c2e7b8a344ef9f6539e3b896e007"
+  integrity sha512-0NL6DfFWASDkvjL6iCr3pO/u1oqvoF75lvnO6QTB0rIHMYOL+l9BAkxVETnNxzvgLRFCECi6NSh2C0bdaYaM1g==
   dependencies:
     "@sveltejs/vite-plugin-svelte" "^1.0.1"
     cookie "^0.5.0"

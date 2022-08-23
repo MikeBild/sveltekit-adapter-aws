@@ -39,7 +39,7 @@
   "dependencies": {
     "@aws-cdk/aws-apigatewayv2-alpha": "2.38.1-alpha.0",
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "2.38.1-alpha.0",
-    "@sveltejs/kit": "1.0.0-next.429",
+    "@sveltejs/kit": "1.0.0-next.430",
     "aws-cdk": "2.38.1",
     "aws-cdk-lib": "2.38.1",
     "constructs": "10.1.84",
