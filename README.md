@@ -1,6 +1,6 @@
 # SvelteKit Adapter AWS
 
-This project contains a SvelteKit adapter to deploy SvelteKit to AWS using CDK.
+This project contains a SvelteKit adapter to deploy SvelteKit to AWS using AWS-CDK.
 
 ## Basic setup example
 
