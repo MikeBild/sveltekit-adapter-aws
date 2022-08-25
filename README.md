@@ -2,6 +2,13 @@
 
 This project contains a SvelteKit adapter to deploy SvelteKit to AWS using AWS-CDK.
 
+## How to use?
+
+1. init SvelteKit project
+2. add [sveltekit-adapter-aws]() to SvelteKit project
+3. optionally edit deployment configuration
+4. optionally add custom stacks using `cdkProjectPath`
+
 ## Basic setup example
 
 **svelte.config.js**
@@ -45,12 +52,3 @@ export interface AWSAdapterProps {
 - [Basic](https://github.com/MikeBild/sveltekit-adapter-aws-basic-example)
 - [Advanced](https://github.com/MikeBild/sveltekit-adapter-aws-advanced-example)
 - [Full Workshop Example](https://github.com/MikeBild/serverless-workshop-sveltekit)
-
-## How to use?
-
-1. init SvelteKit project
-2. add [sveltekit-adapter-aws]() to SvelteKit project
-3. optionally edit deployment configuration
-  - add custom domain (FQDN)
-  - hook site up with other resources
-4. optionally add custom stacks using `cdkProjectPath`
