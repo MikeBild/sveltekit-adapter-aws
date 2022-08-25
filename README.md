@@ -2,46 +2,29 @@
 
 This project contains a SvelteKit adapter to deploy SvelteKit to AWS using CDK.
 
-## Architecture
-
-![Architecture](architecture.png)
-
-## Example usages
-
-- [Basic](https://github.com/MikeBild/sveltekit-adapter-aws-basic-example)
-- [Advanced](https://github.com/MikeBild/sveltekit-adapter-aws-advanced-example)
-- [Full Workshop Example](https://github.com/MikeBild/serverless-workshop-sveltekit)
-
-## How to use?
-
-**TODO: fill in details**
-
-1. init SvelteKit project
-2. add [sveltekit-adapter-aws]() to SvelteKit project
-3. optionally edit deployment configuration
-   - hook site up with other resources
-   - add custom domain
-   - adjust capacity allocation (TBD)
-4. optionally add custom stacks using `cdkProjectPath`
-
 ## Basic setup example
 
 **svelte.config.js**
+
 ```javascript
 import { adapter } from 'sveltekit-adapter-aws';
 import preprocess from 'svelte-preprocess';
 
 export default {
-	preprocess: preprocess(),
-	kit: {
-		adapter: adapter({
-			autoDeploy: true,
-			FQDN: 'sveltekit-adapter-aws-basic-demo.example.com',
-			stackName: 'sveltekit-adapter-aws-basic-demo'
-		})
-	}
+  preprocess: preprocess(),
+  kit: {
+    adapter: adapter({
+      autoDeploy: true,
+      FQDN: 'sveltekit-adapter-aws-basic-demo.example.com',
+      stackName: 'sveltekit-adapter-aws-basic-demo',
+    }),
+  },
 };
 ```
+
+## Architecture
+
+![Architecture](architecture.png)
 
 ## Configuration
 
@@ -56,3 +39,18 @@ export interface AWSAdapterProps {
   LOG_RETENTION_DAYS?: number; // Log retention in days of SSR lambda (default 7 days)
 }
 ```
+
+## Example usages
+
+- [Basic](https://github.com/MikeBild/sveltekit-adapter-aws-basic-example)
+- [Advanced](https://github.com/MikeBild/sveltekit-adapter-aws-advanced-example)
+- [Full Workshop Example](https://github.com/MikeBild/serverless-workshop-sveltekit)
+
+## How to use?
+
+1. init SvelteKit project
+2. add [sveltekit-adapter-aws]() to SvelteKit project
+3. optionally edit deployment configuration
+  - add custom domain (FQDN)
+  - hook site up with other resources
+4. optionally add custom stacks using `cdkProjectPath`
