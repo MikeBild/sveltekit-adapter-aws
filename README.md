@@ -1,10 +1,16 @@
 # SvelteKit Adapter AWS
 
-This project contains a SvelteKit adapter to deploy SvelteKit sites to AWS using CDK.
+This project contains a SvelteKit adapter to deploy SvelteKit to AWS using CDK.
 
 ## Architecture
 
 ![Architecture](architecture.png)
+
+## Example usages
+
+- [Basic](https://github.com/MikeBild/sveltekit-adapter-aws-basic-example)
+- [Advanced](https://github.com/MikeBild/sveltekit-adapter-aws-advanced-example)
+- [Full Workshop Example](https://github.com/MikeBild/serverless-workshop-sveltekit)
 
 ## How to use?
 
@@ -37,13 +43,6 @@ export default {
 };
 ```
 
-## Development Status
-
-- in development
-- adapter interface of SvelteKit still in change
-- upgrade using AWS CDK v2
-- support additional examples
-
 ## Configuration
 
 ```typescript
@@ -53,10 +52,7 @@ export interface AWSAdapterProps {
   autoDeploy?: boolean; // Should automatically deploy in SvelteKit build step (default: false)
   stackName?: string; // AWS-CDK CloudFormation Stackname (default: AWSAdapterStack-Default)
   FQDN?: string; // Full qualified domain name of CloudFront deployment (e.g. demo.example.com)
+  MEMORY_SIZE?: number; // Memory size of SSR lambda in MB (default 128 MB)
+  LOG_RETENTION_DAYS?: number; // Log retention in days of SSR lambda (default 7 days)
 }
 ```
-
-## Links to examples
-
-- [Basic](https://github.com/MikeBild/sveltekit-adapter-aws-basic-example)
-- [Advanced](https://github.com/MikeBild/sveltekit-adapter-aws-advanced-example)
