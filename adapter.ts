@@ -143,7 +143,7 @@ export function adapter({
           {}
         );
 
-        updateDotenv({ ...environment.parsed, ...out, STACKNAME: stackName });
+        updateDotenv({ ...environment.parsed, ...out });
         unlinkSync(join(__dirname, 'cdk.out', 'cdk-env-vars.json'));
       } catch {}
 
