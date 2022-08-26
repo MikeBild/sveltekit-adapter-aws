@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@aws-cdk/aws-apigatewayv2-alpha@2.38.1-alpha.0":
-  version "2.38.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-apigatewayv2-alpha/-/aws-apigatewayv2-alpha-2.38.1-alpha.0.tgz#1eeecefc549b7504b63c470eff3d2b19288bdd21"
-  integrity sha512-B/TdlIKa9ip0tjbe9C4uY+RYiTwv0hTJ9k62MxIeseh78tHgXDXrfROgyEpDHvG7NP2OTyHbewq/yTyGrY+McA==
+"@aws-cdk/aws-apigatewayv2-alpha@2.39.0-alpha.0":
+  version "2.39.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-apigatewayv2-alpha/-/aws-apigatewayv2-alpha-2.39.0-alpha.0.tgz#925e0ac57b97ca77635a17c1a9ee1927d608e53f"
+  integrity sha512-ZgwDcfHz3B/A0Q2YCuWWsz1RQR0uXZQ/JLWw598rIpiTNwSnmelEmmYslV1zbJvmBWhtWn3eyntCxLLZhx8GBw==
 
-"@aws-cdk/aws-apigatewayv2-integrations-alpha@2.38.1-alpha.0":
-  version "2.38.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-apigatewayv2-integrations-alpha/-/aws-apigatewayv2-integrations-alpha-2.38.1-alpha.0.tgz#0337641e550ea708db48547a905e95aefcb4cc12"
-  integrity sha512-AB4Fs0HcPA4JwElL8usLSPzG6ZC/tJ62QQO1lpUtAgB+qdtCSgyPVtFNu5slSCa4tiEaeoVOIeTVIcSJOjlBHA==
+"@aws-cdk/aws-apigatewayv2-integrations-alpha@2.39.0-alpha.0":
+  version "2.39.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-apigatewayv2-integrations-alpha/-/aws-apigatewayv2-integrations-alpha-2.39.0-alpha.0.tgz#84a0355b007fafd1419898c83c2c8091fb20bf25"
+  integrity sha512-uDeBfRuu6kD0EEXU/puBHsW1iJFpAxpyY2/b34O8MHFOgv9ZJ/icC4V9g3+nreT9mp1dETCJZRjC63514QqjqQ==
 
 "@balena/dockerignore@^1.0.2":
   version "1.0.2"
@@ -40,10 +40,10 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sveltejs/kit@1.0.0-next.437":
-  version "1.0.0-next.437"
-  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-1.0.0-next.437.tgz#41f63758923e4feaf92d570227b553b36477815a"
-  integrity sha512-O0jTjJzb9zVqGpdWJxGiQzNe8eNPVxsfOownrqCTfAN5XDPAOvAYkIoax9xo/QYr/XlK0FKpscJXTuvLYYAXqg==
+"@sveltejs/kit@1.0.0-next.442":
+  version "1.0.0-next.442"
+  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-1.0.0-next.442.tgz#9fa8d36067801ee95226c88a8132973fe7bae87d"
+  integrity sha512-xFGgyQuQEvIrBpdfsGQNG9cHINxpqmaa5LMENUdAt0lpbLuRrc4V2Zi2T11MPT2znNBn3rHEFsqCH9zviEcCRw==
   dependencies:
     "@sveltejs/vite-plugin-svelte" "^1.0.1"
     cookie "^0.5.0"
@@ -105,10 +105,10 @@ at-least-node@^1.0.0:
   resolved "https://registry.yarnpkg.com/at-least-node/-/at-least-node-1.0.0.tgz#602cd4b46e844ad4effc92a8011a3c46e0238dc2"
   integrity sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==
 
-aws-cdk-lib@2.38.1:
-  version "2.38.1"
-  resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.38.1.tgz#e96ee1362c86260786b3d808f593ca5edd813b29"
-  integrity sha512-vEgJBUzL1yqlSMYGjipl+eRwy900x3RmbVzTcxKdCZvhtBMQ1hqJAMgVswvoyA5EnvfELLlz9ufm+qdKGs9DxQ==
+aws-cdk-lib@2.39.0:
+  version "2.39.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.39.0.tgz#4461deb7f3daac603dc2684d6be4280c38f00489"
+  integrity sha512-YhXSE6bGS8hQxYygftp3VbaFEz19wl4B1tUAjKjW1rNs3ZpNGnW6o1AVA3Yuc5DlaELrIjXxF0/f+5SvSpYkTA==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     case "1.6.3"
@@ -120,10 +120,10 @@ aws-cdk-lib@2.38.1:
     semver "^7.3.7"
     yaml "1.10.2"
 
-aws-cdk@2.38.1:
-  version "2.38.1"
-  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.38.1.tgz#285273b5507241712bcc1e5b40eb05a21f3bebfd"
-  integrity sha512-bIHRCkmbXBmJWw1Gq5UsAUUYKABuE/ah1iAA14hXLS8+9AJlF/Ptn+NsUCt9K5v17cRqtUoeaOAMAPrZs8l+YA==
+aws-cdk@2.39.0:
+  version "2.39.0"
+  resolved "https://registry.yarnpkg.com/aws-cdk/-/aws-cdk-2.39.0.tgz#9ba44544d97f7d114fc7a358fb17e0e414283ed0"
+  integrity sha512-qoezvJBLSLuUWioxVbxJU8n2BmZH05D9n/b9dgA6pcldchGK+xxvRzWNI2G/nmrT+l5AyPWxq7u0WbmOge6zrw==
   optionalDependencies:
     fsevents "2.3.2"
 
@@ -157,10 +157,10 @@ concat-map@0.0.1:
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
   integrity sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==
 
-constructs@10.1.86:
-  version "10.1.86"
-  resolved "https://registry.yarnpkg.com/constructs/-/constructs-10.1.86.tgz#007215a46998d033e2e9ae1511fff0ac2e67e7d5"
-  integrity sha512-yEC7T93oQU6pEhJlooqSq5JKNGOqMiOvmmnZtJxFBOmCNhUDddNmewb0/9K+FPMFMJn4MQ4G0qNGAaEqVgAyFg==
+constructs@10.1.87:
+  version "10.1.87"
+  resolved "https://registry.yarnpkg.com/constructs/-/constructs-10.1.87.tgz#14db98cbafccc66ebe24c52b34ba377cb015b8a2"
+  integrity sha512-05Kgdbn7x3XB+XWrqzZmIZd9RTACr6iqXt+JOBcgT0MelunyOtc6FBPvJU1c/ETf4oobPvZ8WjOK024o+IbI6w==
 
 cookie@^0.5.0:
   version "0.5.0"
@@ -752,10 +752,10 @@ totalist@^3.0.0:
   resolved "https://registry.yarnpkg.com/totalist/-/totalist-3.0.0.tgz#4ef9c58c5f095255cdc3ff2a0a55091c57a3a1bd"
   integrity sha512-eM+pCBxXO/njtF7vdFsHuqb+ElbxqtI4r5EAvk6grfAFyJ6IvWlSkfZ5T9ozC6xWw3Fj1fGoSmrl0gUs46JVIw==
 
-typescript@4.7.4:
-  version "4.7.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
-  integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
+typescript@4.8.2:
+  version "4.8.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.8.2.tgz#e3b33d5ccfb5914e4eeab6699cf208adee3fd790"
+  integrity sha512-C0I1UsrrDHo2fYI5oaCGbSejwX4ch+9Y5jTQELvovfmFkK3HHSZJB8MSJcWLmCUBzQBchCrZ9rMRV6GuNrvGtw==
 
 undici@^5.8.1:
   version "5.9.1"
