@@ -1,8 +1,8 @@
-import { config } from 'dotenv';
 import { copyFileSync, unlinkSync, existsSync, mkdirSync, emptyDirSync, readFileSync } from 'fs-extra';
 import { join, dirname } from 'path';
 import { spawnSync } from 'child_process';
 import * as esbuild from 'esbuild';
+import { config } from 'dotenv';
 const updateDotenv = require('update-dotenv');
 
 export interface AWSAdapterProps {
@@ -143,7 +143,8 @@ export function adapter({
           {}
         );
 
-        updateDotenv({ ...environment.parsed, ...out });
+        updateDotenv({ ...environment.parsed, ...out, STACKNAME: stackName });
+        unlinkSync(join(__dirname, 'cdk.out', 'cdk-env-vars.json'));
       } catch {}
 
       builder.log.minor('AWS-CDK deployment done.');
