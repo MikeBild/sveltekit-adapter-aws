@@ -25,7 +25,7 @@ export function adapter({
   LOG_RETENTION_DAYS,
   MEMORY_SIZE,
   env = {},
-}: AWSAdapterProps) {
+}: AWSAdapterProps = {}) {
   /** @type {import('@sveltejs/kit').Adapter} */
   return {
     name: 'adapter-awscdk',
