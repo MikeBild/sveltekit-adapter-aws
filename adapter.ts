@@ -20,7 +20,7 @@ export function adapter({
   artifactPath = 'build',
   autoDeploy = false,
   cdkProjectPath = `${__dirname}/deploy/index.js`,
-  stackName = '*',
+  stackName = 'sveltekit-adapter-aws-webapp',
   FQDN,
   LOG_RETENTION_DAYS,
   MEMORY_SIZE,
