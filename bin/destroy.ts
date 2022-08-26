@@ -8,7 +8,7 @@ const prerendered_directory = join(artifactPath, 'prerendered');
 const server_directory = join(artifactPath, 'server');
 
 (async () => {
-  const config = await import(join(__dirname, 'cdk.out', 'cdk-env-vars.json'));
+  const config = await import(join(__dirname, '..', 'cdk.out', 'cdk-env-vars.json'));
   const [stackName, stackConfig] = Object.entries(config).find((x: any) => x[1]?.appUrl) as [
     string,
     { appUrl: string }
