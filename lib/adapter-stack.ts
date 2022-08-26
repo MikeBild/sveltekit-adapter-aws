@@ -149,5 +149,6 @@ export class AWSAdapterStack extends Stack {
     });
 
     new CfnOutput(this, 'appUrl', { value: `https://${process.env.FQDN}` });
+    new CfnOutput(this, 'stackName', { value: id });
   }
 }
