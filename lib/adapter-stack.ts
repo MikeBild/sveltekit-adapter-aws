@@ -94,11 +94,13 @@ export class AWSAdapterStack extends Stack {
       defaultRootObject: '',
       sslSupportMethod: aws_cloudfront.SSLMethod.SNI,
       domainNames: process.env.FQDN ? [process.env.FQDN!] : [],
-      certificate: aws_certificatemanager.Certificate.fromCertificateArn(
-        this,
-        'DomainCertificate',
-        this.certificate.certificateArn
-      ),
+      certificate: process.env.FQDN
+        ? aws_certificatemanager.Certificate.fromCertificateArn(
+            this,
+            'DomainCertificate',
+            this.certificate.certificateArn
+          )
+        : undefined,
       defaultBehavior: {
         compress: true,
         origin: new aws_cloudfront_origins.HttpOrigin(Fn.select(1, Fn.split('://', this.httpApi.apiEndpoint)), {
