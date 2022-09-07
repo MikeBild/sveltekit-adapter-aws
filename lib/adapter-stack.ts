@@ -42,9 +42,9 @@ export class AWSAdapterStack extends Stack {
     const prerenderedPath = process.env.PRERENDERED_PATH;
     const logRetention = parseInt(process.env.LOG_RETENTION_DAYS!) || 7;
     const memorySize = parseInt(process.env.MEMORY_SIZE!) || 128;
+    const environment = config({ path: projectPath });
     const [_, zoneName, TLD] = process.env.FQDN?.split('.') || [];
     const domainName = `${zoneName}.${TLD}`;
-    const environment = config({ path: projectPath });
 
     this.serverHandler = new aws_lambda.Function(this, 'LambdaServerFunctionHandler', {
       code: new aws_lambda.AssetCode(serverPath!),
@@ -76,22 +76,24 @@ export class AWSAdapterStack extends Stack {
       autoDeleteObjects: true,
     });
 
-    this.hostedZone = aws_route53.HostedZone.fromLookup(this, 'HostedZone', {
-      domainName,
-    }) as aws_route53.HostedZone;
+    if (process.env.FQDN) {
+      this.hostedZone = aws_route53.HostedZone.fromLookup(this, 'HostedZone', {
+        domainName,
+      }) as aws_route53.HostedZone;
 
-    this.certificate = new aws_certificatemanager.DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
-      domainName: process.env.FQDN!,
-      hostedZone: this.hostedZone,
-      region: 'us-east-1',
-    });
+      this.certificate = new aws_certificatemanager.DnsValidatedCertificate(this, 'DnsValidatedCertificate', {
+        domainName: process.env.FQDN!,
+        hostedZone: this.hostedZone,
+        region: 'us-east-1',
+      });
+    }
 
     this.distribution = new aws_cloudfront.Distribution(this, 'CloudFrontDistribution', {
       priceClass: aws_cloudfront.PriceClass.PRICE_CLASS_100,
       enabled: true,
       defaultRootObject: '',
       sslSupportMethod: aws_cloudfront.SSLMethod.SNI,
-      domainNames: [process.env.FQDN!],
+      domainNames: process.env.FQDN ? [process.env.FQDN!] : [],
       certificate: aws_certificatemanager.Certificate.fromCertificateArn(
         this,
         'DomainCertificate',
@@ -132,12 +134,13 @@ export class AWSAdapterStack extends Stack {
         cachePolicy: aws_cloudfront.CachePolicy.CACHING_OPTIMIZED,
       });
     });
-
-    new aws_route53.ARecord(this, 'ARecord', {
-      recordName: process.env.FQDN,
-      target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(this.distribution)),
-      zone: this.hostedZone,
-    });
+    if (process.env.FQDN) {
+      new aws_route53.ARecord(this, 'ARecord', {
+        recordName: process.env.FQDN,
+        target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(this.distribution)),
+        zone: this.hostedZone,
+      });
+    }
 
     new aws_s3_deployment.BucketDeployment(this, 'StaticContentDeployment', {
       destinationBucket: this.bucket,
@@ -147,8 +150,10 @@ export class AWSAdapterStack extends Stack {
       distribution: this.distribution,
       distributionPaths: ['/*'],
     });
-
-    new CfnOutput(this, 'appUrl', { value: `https://${process.env.FQDN}` });
+    this.distribution.domainName;
+    new CfnOutput(this, 'appUrl', {
+      value: process.env.FQDN ? `https://${process.env.FQDN}` : `https://${this.distribution.domainName}`,
+    });
     new CfnOutput(this, 'stackName', { value: id });
   }
 }
