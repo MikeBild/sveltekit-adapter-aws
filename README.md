@@ -4,10 +4,11 @@ This project contains a SvelteKit adapter to deploy SvelteKit to AWS using AWS-C
 
 ## How to use?
 
-1. init SvelteKit project
-2. add [sveltekit-adapter-aws]() to SvelteKit project
-3. optionally edit deployment configuration
-4. optionally add custom stacks using `cdkProjectPath`
+1. Create a SvelteKit project "my-app" - `npm create svelte@latest my-app`
+2. `cd my-app`
+3. `npm install`
+4. `npm install -D sveltekit-adapter-aws`
+5. edit **svelte.config.js**
 
 ## Basic setup example
 
@@ -22,8 +23,6 @@ export default {
   kit: {
     adapter: adapter({
       autoDeploy: true,
-      FQDN: 'sveltekit-adapter-aws-basic-demo.example.com',
-      stackName: 'sveltekit-adapter-aws-basic-demo',
     }),
   },
 };
