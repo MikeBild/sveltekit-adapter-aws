@@ -5,7 +5,8 @@ import { manifest } from '../manifest.js';
 const server = new Server(manifest);
 
 export async function handler(event) {
-  const { path, headers, body, httpMethod, multiValueQueryStringParameters, requestContext, isBase64Encoded } = event;
+  const { path, method } = getVersionRoute[event.version ?? '1.0']?.(event)
+  const { headers, body, multiValueQueryStringParameters, requestContext, isBase64Encoded } = event;
   const encoding = isBase64Encoded ? 'base64' : (headers && headers['content-encoding']) || 'utf-8';
   const rawBody = typeof body === 'string' ? Buffer.from(body, encoding) : body;
   const rawURL = `https://${requestContext.domainName}${path}${parseQuery(multiValueQueryStringParameters)}`;
@@ -16,7 +17,7 @@ export async function handler(event) {
     new Request(
       rawURL,
       {
-        method: httpMethod,
+        method,
         headers: new Headers(headers || {}),
         body: rawBody,
       },
@@ -53,6 +54,17 @@ export async function handler(event) {
     statusCode: 404,
     body: 'Not found.',
   };
+}
+
+const getVersionRoute = {
+  '1.0': (event) => ({
+    method: event.httpMethod,
+    path: event.path
+  }),
+  '2.0': (event) => ({
+    method: event.requestContext.http.method,
+    path: event.requestContext.http.path
+  })
 }
 
 function parseQuery(queryParams) {
