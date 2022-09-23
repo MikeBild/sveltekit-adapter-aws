@@ -55,7 +55,6 @@ export class AWSAdapterStack extends Stack {
       logRetention,
       environment: {
         ...environment.parsed,
-        AWS_REGION: undefined,
       } as any,
     });
 
