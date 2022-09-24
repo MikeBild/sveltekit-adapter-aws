@@ -15,7 +15,7 @@ import {
   aws_route53_targets,
   aws_cloudfront,
 } from 'aws-cdk-lib';
-import { CorsHttpMethod, HttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { CorsHttpMethod, HttpApi, IHttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { config } from 'dotenv';
 
@@ -26,12 +26,12 @@ export interface AWSAdapterStackProps extends StackProps {
 }
 
 export class AWSAdapterStack extends Stack {
-  distribution: aws_cloudfront.Distribution;
-  bucket: aws_s3.Bucket;
-  serverHandler: aws_lambda.Function;
-  httpApi: HttpApi;
-  hostedZone: aws_route53.HostedZone;
-  certificate: aws_certificatemanager.DnsValidatedCertificate;
+  bucket: aws_s3.IBucket;
+  serverHandler: aws_lambda.IFunction;
+  httpApi: IHttpApi;
+  hostedZone: aws_route53.IHostedZone;
+  certificate: aws_certificatemanager.ICertificate;
+
   constructor(scope: Construct, id: string, props: AWSAdapterStackProps) {
     super(scope, id, props);
 
@@ -87,7 +87,7 @@ export class AWSAdapterStack extends Stack {
       });
     }
 
-    this.distribution = new aws_cloudfront.Distribution(this, 'CloudFrontDistribution', {
+    const distribution = new aws_cloudfront.Distribution(this, 'CloudFrontDistribution', {
       priceClass: aws_cloudfront.PriceClass.PRICE_CLASS_100,
       enabled: true,
       defaultRootObject: '',
@@ -126,19 +126,19 @@ export class AWSAdapterStack extends Stack {
     });
 
     const s3Origin = new aws_cloudfront_origins.S3Origin(this.bucket, {});
-
     routes.forEach((route) => {
-      this.distribution.addBehavior(route, s3Origin, {
+      distribution.addBehavior(route, s3Origin, {
         viewerProtocolPolicy: aws_cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: aws_cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         originRequestPolicy: aws_cloudfront.OriginRequestPolicy.USER_AGENT_REFERER_HEADERS,
         cachePolicy: aws_cloudfront.CachePolicy.CACHING_OPTIMIZED,
       });
     });
+
     if (process.env.FQDN) {
       new aws_route53.ARecord(this, 'ARecord', {
         recordName: process.env.FQDN,
-        target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(this.distribution)),
+        target: aws_route53.RecordTarget.fromAlias(new aws_route53_targets.CloudFrontTarget(distribution)),
         zone: this.hostedZone,
       });
     }
@@ -148,13 +148,14 @@ export class AWSAdapterStack extends Stack {
       sources: [aws_s3_deployment.Source.asset(staticPath!), aws_s3_deployment.Source.asset(prerenderedPath!)],
       retainOnDelete: false,
       prune: true,
-      distribution: this.distribution,
+      distribution,
       distributionPaths: ['/*'],
     });
-    this.distribution.domainName;
+
     new CfnOutput(this, 'appUrl', {
-      value: process.env.FQDN ? `https://${process.env.FQDN}` : `https://${this.distribution.domainName}`,
+      value: process.env.FQDN ? `https://${process.env.FQDN}` : `https://${distribution.domainName}`,
     });
+
     new CfnOutput(this, 'stackName', { value: id });
   }
 }
