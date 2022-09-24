@@ -17,7 +17,7 @@
     "cdk"
   ],
   "author": "mike.bild@gmail.com",
-  "version": "4.3.0",
+  "version": "4.3.1",
   "main": "./index.js",
   "types": "./index.d.ts",
   "bin": {
@@ -30,19 +30,19 @@
   },
   "devDependencies": {
     "@types/fs-extra": "9.0.13",
-    "@types/node": "18.7.18",
+    "@types/node": "18.7.19",
     "@types/node-fetch": "2.6.2",
     "esbuild": "0.15.9",
     "prettier": "2.7.1",
     "typescript": "4.8.3"
   },
   "dependencies": {
-    "@aws-cdk/aws-apigatewayv2-alpha": "2.43.0-alpha.0",
-    "@aws-cdk/aws-apigatewayv2-integrations-alpha": "2.43.0-alpha.0",
-    "@sveltejs/kit": "1.0.0-next.499",
-    "aws-cdk": "2.43.0",
-    "aws-cdk-lib": "2.43.0",
-    "constructs": "10.1.110",
+    "@aws-cdk/aws-apigatewayv2-alpha": "2.43.1-alpha.0",
+    "@aws-cdk/aws-apigatewayv2-integrations-alpha": "2.43.1-alpha.0",
+    "@sveltejs/kit": "1.0.0-next.502",
+    "aws-cdk": "2.43.1",
+    "aws-cdk-lib": "2.43.1",
+    "constructs": "10.1.111",
     "dotenv": "16.0.2",
     "fs-extra": "10.1.0",
     "svelte": "3.50.1",
