@@ -3,6 +3,7 @@ import { join, dirname } from 'path';
 import { spawnSync } from 'child_process';
 import * as esbuild from 'esbuild';
 import { config } from 'dotenv';
+import {writeFileSync} from "fs";
 const updateDotenv = require('update-dotenv');
 
 export interface AWSAdapterProps {
@@ -90,6 +91,8 @@ export function adapter({
             .filter(Boolean)
         ),
       ];
+
+      writeFileSync(join(artifactPath, 'routes.json'), JSON.stringify(routes))
 
       builder.log.minor('Deploy using AWS-CDK.');
       autoDeploy &&
