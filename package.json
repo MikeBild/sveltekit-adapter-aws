@@ -42,10 +42,10 @@
     "@sveltejs/kit": "1.0.0-next.539",
     "aws-cdk": "2.50.0",
     "aws-cdk-lib": "2.50.0",
-    "constructs": "10.1.154",
+    "constructs": "10.1.155",
     "dotenv": "16.0.3",
     "fs-extra": "10.1.0",
-    "svelte": "3.52.0",
+    "svelte": "3.53.0",
     "update-dotenv": "1.1.1",
     "vite": "3.2.3"
   }
