@@ -18,11 +18,13 @@ import {
 import { CorsHttpMethod, HttpApi, IHttpApi, PayloadFormatVersion } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { config } from 'dotenv';
+import {PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 export interface AWSAdapterStackProps extends StackProps {
   FQDN: string;
   account?: string;
   region?: string;
+  serverHandlerPolicies?: PolicyStatement[]
 }
 
 export class AWSAdapterStack extends Stack {
@@ -57,6 +59,8 @@ export class AWSAdapterStack extends Stack {
         ...environment.parsed,
       } as any,
     });
+
+    props.serverHandlerPolicies?.forEach(this.serverHandler.addToRolePolicy)
 
     this.httpApi = new HttpApi(this, 'API', {
       corsPreflight: {
