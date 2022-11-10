@@ -9,7 +9,7 @@ export async function handler(event) {
   const { headers, body, multiValueQueryStringParameters, isBase64Encoded } = event;
   const encoding = isBase64Encoded ? 'base64' : (headers && headers['content-encoding']) || 'utf-8';
   const rawBody = typeof body === 'string' ? Buffer.from(body, encoding) : body;
-  headers.origin = process.env.ORIGIN ?? headers.origin;
+  headers.origin = process.env.ORIGIN ?? headers.origin ?? `https://${event.requestContext.domainName}`;
   const rawURL = `${headers.origin}${path}${parseQuery(multiValueQueryStringParameters)}`;
 
   await server.init({ env: process.env });
