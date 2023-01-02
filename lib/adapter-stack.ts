@@ -45,7 +45,7 @@ export class AWSAdapterStack extends Stack {
     const logRetention = parseInt(process.env.LOG_RETENTION_DAYS!) || 7;
     const memorySize = parseInt(process.env.MEMORY_SIZE!) || 128;
     const environment = config({ path: projectPath });
-    const [_, zoneName, TLD] = process.env.FQDN?.split('.') || [];
+    const [zoneName, TLD] = process.env.FQDN?.split('.').slice(-2) || [];
     const domainName = `${zoneName}.${TLD}`;
 
     this.serverHandler = new aws_lambda.Function(this, 'LambdaServerFunctionHandler', {
