@@ -11,6 +11,7 @@ export interface AWSAdapterProps {
   autoDeploy?: boolean;
   cdkProjectPath?: string;
   stackName?: string;
+  esbuildOptions?: any;
   FQDN?: string;
   LOG_RETENTION_DAYS?: number;
   MEMORY_SIZE?: number;
@@ -22,6 +23,7 @@ export function adapter({
   autoDeploy = false,
   cdkProjectPath = `${__dirname}/deploy/index.js`,
   stackName = 'sveltekit-adapter-aws-webapp',
+  esbuildOptions = {},
   FQDN,
   LOG_RETENTION_DAYS,
   MEMORY_SIZE,
@@ -62,11 +64,11 @@ export function adapter({
         entryPoints: [`${server_directory}/_index.js`],
         outfile: `${server_directory}/index.js`,
         inject: [join(`${server_directory}/shims.js`)],
-        external: ['node:*'],
-        format: 'cjs',
+        external: ['node:*', ...(esbuildOptions?.external ?? [])],
+        format: esbuildOptions?.format ?? 'cjs',
         bundle: true,
         platform: 'node',
-        target: 'es2020',
+        target: esbuildOptions?.target ?? 'node16',
         treeShaking: true,
       });
 
