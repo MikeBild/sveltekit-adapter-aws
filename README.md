@@ -44,6 +44,7 @@ export interface AWSAdapterProps {
   FQDN?: string; // Full qualified domain name of CloudFront deployment (e.g. demo.example.com)
   MEMORY_SIZE?: number; // Memory size of SSR lambda in MB (default 128 MB)
   LOG_RETENTION_DAYS?: number; // Log retention in days of SSR lambda (default 7 days)
+  zoneName?: string; // The name of the hosted zone in Route 53 (defaults to the TLD from the FQDN)
 }
 ```
 
