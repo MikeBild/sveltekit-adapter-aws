@@ -68,6 +68,7 @@ export function adapter({
         inject: [join(`${server_directory}/shims.js`)],
         external: ['node:*', ...(esbuildOptions?.external ?? [])],
         format: esbuildOptions?.format ?? 'cjs',
+        banner: esbuildOptions?.banner ?? {},
         bundle: true,
         platform: 'node',
         target: esbuildOptions?.target ?? 'node16',
