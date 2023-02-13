@@ -15,19 +15,16 @@ export async function handler(event) {
   await server.init({ env: process.env });
 
   const rendered = await server.respond(
-    new Request(
-      rawURL,
-      {
-        method,
-        headers: new Headers(headers || {}),
-        body: rawBody,
+    new Request(rawURL, {
+      method,
+      headers: new Headers(headers || {}),
+      body: rawBody,
+    }),
+    {
+      getClientAddress() {
+        return headers.get('x-forwarded-for');
       },
-      {
-        getClientAddress() {
-          return headers.get('x-forwarded-for');
-        },
-      }
-    )
+    }
   );
 
   if (rendered) {
