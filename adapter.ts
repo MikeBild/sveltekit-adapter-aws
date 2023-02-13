@@ -15,6 +15,7 @@ export interface AWSAdapterProps {
   FQDN?: string;
   LOG_RETENTION_DAYS?: number;
   MEMORY_SIZE?: number;
+  zoneName?: string;
   env?: { [key: string]: string };
 }
 
@@ -27,6 +28,7 @@ export function adapter({
   FQDN,
   LOG_RETENTION_DAYS,
   MEMORY_SIZE,
+  zoneName = '',
   env = {},
 }: AWSAdapterProps = {}) {
   /** @type {import('@sveltejs/kit').Adapter} */
@@ -125,6 +127,7 @@ export function adapter({
                 FQDN,
                 LOG_RETENTION_DAYS,
                 MEMORY_SIZE,
+                ZONE_NAME: zoneName,
               },
               process.env,
               env

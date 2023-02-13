@@ -25,6 +25,7 @@ export interface AWSAdapterStackProps extends StackProps {
   account?: string;
   region?: string;
   serverHandlerPolicies?: PolicyStatement[];
+  zoneName?: string;
 }
 
 export class AWSAdapterStack extends Stack {
@@ -46,7 +47,7 @@ export class AWSAdapterStack extends Stack {
     const memorySize = parseInt(process.env.MEMORY_SIZE!) || 128;
     const environment = config({ path: projectPath });
     const [zoneName, TLD] = process.env.FQDN?.split('.').slice(-2) || [];
-    const domainName = `${zoneName}.${TLD}`;
+    const domainName = process.env.ZONE_NAME || `${zoneName}.${TLD}`;
 
     this.serverHandler = new aws_lambda.Function(this, 'LambdaServerFunctionHandler', {
       code: new aws_lambda.AssetCode(serverPath!),
