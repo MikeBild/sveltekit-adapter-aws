@@ -100,7 +100,6 @@ export function adapter({
 
       builder.log.minor('Deploy using AWS-CDK.');
       autoDeploy &&
-        false &&
         spawn.sync(
           'npx',
           [
