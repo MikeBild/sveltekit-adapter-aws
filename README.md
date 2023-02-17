@@ -53,3 +53,7 @@ export interface AWSAdapterProps {
 - [Basic](https://github.com/MikeBild/sveltekit-adapter-aws-basic-example)
 - [Advanced](https://github.com/MikeBild/sveltekit-adapter-aws-advanced-example)
 - [Full Workshop Example](https://github.com/MikeBild/serverless-workshop-sveltekit)
+
+## Known Issue on windows
+
+- If nodejs is placed in a directory which contains blanks the cdk deploy command in adapter.ts is likely to fail
