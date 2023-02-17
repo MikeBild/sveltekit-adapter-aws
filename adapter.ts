@@ -1,9 +1,9 @@
 import { copyFileSync, unlinkSync, existsSync, mkdirSync, emptyDirSync, readFileSync } from 'fs-extra';
 import { join, dirname } from 'path';
-import { spawnSync } from 'child_process';
 import * as esbuild from 'esbuild';
 import { config } from 'dotenv';
 import { writeFileSync } from 'fs';
+const spawn = require('cross-spawn');
 const updateDotenv = require('update-dotenv');
 
 export interface AWSAdapterProps {
@@ -100,7 +100,7 @@ export function adapter({
 
       builder.log.minor('Deploy using AWS-CDK.');
       autoDeploy &&
-        spawnSync(
+        spawn.sync(
           'npx',
           [
             'cdk',
