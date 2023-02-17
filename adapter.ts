@@ -89,7 +89,7 @@ export function adapter({
             .map((x) => {
               const z = dirname(x);
               if (z === '.') return x;
-              if (z.includes('/')) return undefined;
+              if (z.includes('/')) return `${z.split('/')[0]}/*`;
               return `${z}/*`;
             })
             .filter(Boolean)
