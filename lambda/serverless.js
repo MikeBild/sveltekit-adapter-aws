@@ -3,6 +3,7 @@ import { Server } from '../index.js';
 import { manifest } from '../manifest.js';
 
 const server = new Server(manifest);
+const init = server.init({ env: process.env });
 
 export async function handler(event) {
   const { path, method } = getVersionRoute[event.version ?? '1.0']?.(event);
@@ -12,7 +13,7 @@ export async function handler(event) {
   headers.origin = process.env.ORIGIN ?? headers.origin ?? `https://${event.requestContext.domainName}`;
   const rawURL = `${headers.origin}${path}${parseQuery(multiValueQueryStringParameters)}`;
 
-  await server.init({ env: process.env });
+  await init;
 
   const rendered = await server.respond(
     new Request(rawURL, {
