@@ -7,6 +7,7 @@ Tags.of(app).add('app', 'sveltekit-adapter-aws-webapp');
 
 new AWSAdapterStack(app, process.env.STACKNAME!, {
   FQDN: process.env.FQDN!,
+  zoneName: process.env.ZONE_NAME!,
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,

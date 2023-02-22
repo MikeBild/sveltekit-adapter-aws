@@ -25,6 +25,7 @@ export interface AWSAdapterStackProps extends StackProps {
   account?: string;
   region?: string;
   serverHandlerPolicies?: PolicyStatement[];
+  zoneName?: string;
 }
 
 export class AWSAdapterStack extends Stack {
