@@ -1,6 +1,7 @@
 import './shims.js';
 import { Server } from '../index.js';
 import { manifest } from '../manifest.js';
+var setCookie = require('set-cookie-parser');
 
 const server = new Server(manifest);
 const init = server.init({ env: process.env });
@@ -31,22 +32,11 @@ export async function handler(event) {
 
   if (rendered) {
     const resp = {
-      headers: {
-        'cache-control': 'no-cache',
-      },
-      multiValueHeaders: {},
+			statusCode: rendered.status,
       body: await rendered.text(),
-      statusCode: rendered.status,
+			...split_headers(rendered.headers)
     };
-
-    for (let k of rendered.headers.keys()) {
-      const v = rendered.headers.get(k);
-      if (v instanceof Array) {
-        resp.multiValueHeaders[k] = v;
-      } else {
-        resp.headers[k] = v;
-      }
-    }
+    resp.headers['Cache-Control'] = 'no-cache';
     return resp;
   }
 
@@ -85,4 +75,36 @@ function parseQuery(queryParams) {
     }
   }
   return queryString;
+}
+
+// Copyright (c) 2020 [these people](https://github.com/sveltejs/kit/graphs/contributors) (MIT)
+// From: kit/packages/adapter-netlify/src/headers.js
+/**
+ * Splits headers into two categories: single value and multi value
+ * @param {Headers} headers
+ * @returns {{
+*   headers: Record<string, string>,
+*   multiValueHeaders: Record<string, string[]>
+* }}
+*/
+export function split_headers(headers) {
+	/** @type {Record<string, string>} */
+	const h = {};
+
+	/** @type {Record<string, string[]>} */
+	const m = {};
+
+	headers.forEach((value, key) => {
+		if (key === 'set-cookie') {
+			if (!m[key]) m[key] = [];
+			m[key].push(...setCookie.splitCookiesString(value));
+		} else {
+			h[key] = value;
+		}
+	});
+
+	return {
+		headers: h,
+		multiValueHeaders: m
+	};
 }
