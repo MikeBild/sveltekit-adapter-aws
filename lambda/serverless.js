@@ -32,9 +32,9 @@ export async function handler(event) {
 
   if (rendered) {
     const resp = {
-			statusCode: rendered.status,
+      statusCode: rendered.status,
       body: await rendered.text(),
-			...split_headers(rendered.headers)
+      ...split_headers(rendered.headers),
     };
     resp.headers['Cache-Control'] = 'no-cache';
     return resp;
@@ -83,28 +83,28 @@ function parseQuery(queryParams) {
  * Splits headers into two categories: single value and multi value
  * @param {Headers} headers
  * @returns {{
-*   headers: Record<string, string>,
-*   multiValueHeaders: Record<string, string[]>
-* }}
-*/
+ *   headers: Record<string, string>,
+ *   multiValueHeaders: Record<string, string[]>
+ * }}
+ */
 export function split_headers(headers) {
-	/** @type {Record<string, string>} */
-	const h = {};
+  /** @type {Record<string, string>} */
+  const h = {};
 
-	/** @type {Record<string, string[]>} */
-	const m = {};
+  /** @type {Record<string, string[]>} */
+  const m = {};
 
-	headers.forEach((value, key) => {
-		if (key === 'set-cookie') {
-			if (!m[key]) m[key] = [];
-			m[key].push(...setCookie.splitCookiesString(value));
-		} else {
-			h[key] = value;
-		}
-	});
+  headers.forEach((value, key) => {
+    if (key === 'set-cookie') {
+      if (!m[key]) m[key] = [];
+      m[key].push(...setCookie.splitCookiesString(value));
+    } else {
+      h[key] = value;
+    }
+  });
 
-	return {
-		headers: h,
-		multiValueHeaders: m
-	};
+  return {
+    headers: h,
+    multiValueHeaders: m,
+  };
 }
