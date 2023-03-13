@@ -32,6 +32,7 @@
     "@types/fs-extra": "11.0.1",
     "@types/node": "18.14.0",
     "@types/node-fetch": "2.6.2",
+    "@types/set-cookie-parser": "^2.4.2",
     "esbuild": "0.17.10",
     "prettier": "2.8.4",
     "typescript": "4.9.5"
@@ -45,6 +46,7 @@
     "constructs": "10.1.257",
     "dotenv": "16.0.3",
     "fs-extra": "11.1.0",
+    "set-cookie-parser": "^2.5.1",
     "svelte": "3.55.1",
     "update-dotenv": "1.1.1",
     "vite": "4.1.4"
