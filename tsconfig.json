@@ -19,7 +19,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "allowJs": false,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["vitest/globals"]
   },
   "exclude": ["cdk.out"]
 }

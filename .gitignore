@@ -6,6 +6,7 @@ output
 *.js
 !/lambda/*
 !*.config.js
+!/tests/mock/*
 
 # CDK asset staging directory
 .cdk.staging
