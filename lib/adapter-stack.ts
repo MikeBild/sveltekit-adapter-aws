@@ -47,7 +47,7 @@ export class AWSAdapterStack extends Stack {
     const memorySize = parseInt(process.env.MEMORY_SIZE!) || 128;
     const environment = config({ path: projectPath });
     const [_, zoneName, ...MLDs] = process.env.FQDN?.split('.') || [];
-    const domainName = [zoneName, ...MLDs].join(".");
+    const domainName = [zoneName, ...MLDs].join('.');
 
     this.serverHandler = new aws_lambda.Function(this, 'LambdaServerFunctionHandler', {
       code: new aws_lambda.AssetCode(serverPath!),
