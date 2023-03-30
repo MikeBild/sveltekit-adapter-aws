@@ -17,7 +17,7 @@
     "cdk"
   ],
   "author": "mike.bild@gmail.com",
-  "version": "4.5.1",
+  "version": "4.5.2",
   "main": "./index.js",
   "types": "./index.d.ts",
   "bin": {
@@ -26,7 +26,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@types/fs-extra": "11.0.1",
