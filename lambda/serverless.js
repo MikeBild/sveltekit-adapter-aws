@@ -1,6 +1,7 @@
 import './shims.js';
 import { Server } from '../index.js';
 import { manifest } from '../manifest.js';
+import { splitCookiesString } from 'set-cookie-parser';
 
 const server = new Server(manifest);
 const init = server.init({ env: process.env });
@@ -43,6 +44,9 @@ export async function handler(event) {
       const v = rendered.headers.get(k);
       if (v instanceof Array) {
         resp.multiValueHeaders[k] = v;
+      } else if (k === 'set-cookie') {
+        if (!resp.multiValueHeaders[k]) resp.multiValueHeaders[k] = [];
+        resp.multiValueHeaders[k].push(...setCookie.splitCookiesString(v));
       } else {
         resp.headers[k] = v;
       }
