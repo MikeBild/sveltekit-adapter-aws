@@ -42,8 +42,11 @@ export async function handler(event) {
 
     for (let k of rendered.headers.keys()) {
       const v = rendered.headers.get(k);
-      if (k === 'set-cookie') {
-        resp.multiValueHeaders[k] = [...setCookie.splitCookiesString(v)];
+      if (v instanceof Array) {
+        resp.multiValueHeaders[k] = v;
+      } else if (k === 'set-cookie') {
+        if (!resp.multiValueHeaders[k]) resp.multiValueHeaders[k] = [];
+        resp.multiValueHeaders[k].push(...setCookie.splitCookiesString(v));
       } else {
         resp.headers[k] = v;
       }
