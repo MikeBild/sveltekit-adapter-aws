@@ -46,7 +46,7 @@ export async function handler(event) {
         resp.multiValueHeaders[k] = v;
       } else if (k === 'set-cookie') {
         if (!resp.multiValueHeaders[k]) resp.multiValueHeaders[k] = [];
-        resp.multiValueHeaders[k].push(...setCookie.splitCookiesString(v));
+        resp.multiValueHeaders[k].push(splitCookiesString(v));
       } else {
         resp.headers[k] = v;
       }
