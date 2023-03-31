@@ -45,6 +45,7 @@
     "constructs": "10.1.257",
     "dotenv": "16.0.3",
     "fs-extra": "11.1.0",
+    "set-cookie-parser": "^2.6.0",
     "svelte": "3.55.1",
     "update-dotenv": "1.1.1",
     "vite": "4.1.4"
